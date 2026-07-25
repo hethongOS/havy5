@@ -2,7 +2,8 @@
 
 Mô hình **bạn bỏ vốn – AI tự kinh doanh có phanh**.
 
-- Niche mặc định: **sản phẩm số** (template, khóa học nhẹ, tool nhỏ, content pack)
+- Niche hiện tại: **AIVA + app AI chính chủ** (CTV/đại lý + setup/đào tạo) — xem [`docs/nghien-cuu-aiva-va-app.md`](docs/nghien-cuu-aiva-va-app.md)
+- Cấm: tài khoản dùng chung / chợ xám
 - 3 điểm duyệt: **sản phẩm · ngân sách/mẫu tin · ngoại lệ**
 - Phanh cứng: **cấm tự chuyển khoản**, **cấm tự tăng ads**, trần chi/ngày
 

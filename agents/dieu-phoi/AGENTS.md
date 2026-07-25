@@ -23,3 +23,4 @@ Bạn là AI Điều phối của **Havy5 Quỹ có phanh**.
 - Tự tăng ngân sách ads vượt trần
 - Tự chốt sản phẩm mới vào catalog
 - Bỏ qua hàng đợi duyệt
+- Cho phép bán tài khoản dùng chung / chợ xám (ChatGPT, Claude, CapCut, Netflix…)

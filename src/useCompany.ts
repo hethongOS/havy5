@@ -38,7 +38,7 @@ export function useCompany() {
       id: 'seed-1',
       agentId: 'dieu-phoi',
       agentName: 'Điều phối',
-      text: 'Khởi động Quỹ có phanh — niche sản phẩm số, chờ Chủ quỹ duyệt.',
+      text: 'Khởi động Quỹ có phanh — niche AIVA chính chủ, chờ Chủ quỹ duyệt SKU.',
       time: timeLabel(),
     },
   ])

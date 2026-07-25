@@ -14,7 +14,7 @@ const config: FundConfig = {
   adsDailyCeiling: 150_000,
   refundDailyCeiling: 200_000,
   maxDiscountPercent: 15,
-  minMarginPercent: 40,
+  minMarginPercent: 25,
   allowAutoTransfer: false,
   allowAutoAdsIncrease: false,
 }
