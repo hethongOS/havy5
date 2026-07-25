@@ -1,0 +1,82 @@
+{
+  "name": "Havy5 Quỹ có phanh",
+  "tagline": "Bạn bỏ vốn · AI tự vận hành trong hạn mức",
+  "model": "quy-co-phanh",
+  "niche": {
+    "id": "digital",
+    "label": "Sản phẩm số",
+    "description": "Template, khóa học nhẹ, tool nhỏ, content pack — biên lời rõ, không tồn kho vật lý.",
+    "allowedCategories": [
+      "template",
+      "khoa-hoc-nhe",
+      "tool-nho",
+      "content-pack",
+      "prompt-pack"
+    ],
+    "forbiddenCategories": [
+      "thuc-pham",
+      "y-te",
+      "tai-chinh",
+      "hang-cam",
+      "nhap-kho-vat-ly-lon"
+    ]
+  },
+  "fund": {
+    "currency": "VND",
+    "initialCapital": 5000000,
+    "dailySpendCeiling": 300000,
+    "adsDailyCeiling": 150000,
+    "refundDailyCeiling": 200000,
+    "maxDiscountPercent": 15,
+    "minMarginPercent": 40,
+    "allowAutoTransfer": false,
+    "allowAutoAdsIncrease": false,
+    "allowLargePurchaseWithoutApproval": false
+  },
+  "approvals": {
+    "product": {
+      "id": "product",
+      "label": "Duyệt sản phẩm",
+      "required": true,
+      "description": "AI chỉ đề xuất. Bạn chốt 1 sản phẩm trước khi bán."
+    },
+    "budget": {
+      "id": "budget",
+      "label": "Duyệt ngân sách / mẫu tin",
+      "required": true,
+      "description": "Duyệt mẫu outreach và ngân sách ads trong trần ngày."
+    },
+    "exception": {
+      "id": "exception",
+      "label": "Duyệt ngoại lệ",
+      "required": true,
+      "description": "Hoàn tiền lớn, giảm giá vượt mức, việc ngoài luật → hỏi bạn."
+    }
+  },
+  "agents": [
+    {
+      "id": "dieu-phoi",
+      "name": "Điều phối",
+      "role": "Orchestrator",
+      "mission": "Chia việc, gom báo cáo, đẩy việc cần duyệt lên chủ quỹ."
+    },
+    {
+      "id": "san-pham",
+      "name": "Sản phẩm",
+      "role": "Product Scout",
+      "mission": "Nghiên cứu xu hướng, đối thủ, biên lời — chỉ đề xuất, không tự đặt hàng lớn."
+    },
+    {
+      "id": "khach-hang",
+      "name": "Khách hàng",
+      "role": "Lead Hunter",
+      "mission": "Tìm lead, chấm nóng/lạnh, soạn tin nháp — gửi sau khi duyệt mẫu."
+    },
+    {
+      "id": "ban-hang",
+      "name": "Bán hàng",
+      "role": "Closer",
+      "mission": "Chốt đơn trong giá & hạn mức; việc lạ hoặc vượt trần → hỏi chủ quỹ."
+    }
+  ]
+}
