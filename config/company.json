@@ -1,0 +1,90 @@
+{
+  "name": "Havy5 Quỹ có phanh",
+  "tagline": "Bạn bỏ vốn · AI bán AIVA & dịch vụ setup trong hạn mức",
+  "model": "quy-co-phanh",
+  "niche": {
+    "id": "aiva-apps-chinh-chu",
+    "label": "AIVA + app AI chính chủ",
+    "description": "Bán gói AIVA qua CTV/đại lý chính thức, kèm setup/đào tạo/template. Cấm tài khoản dùng chung / chợ xám.",
+    "researchDoc": "docs/nghien-cuu-aiva-va-app.md",
+    "allowedCategories": [
+      "aiva-goi-chinh-chu",
+      "aiva-affiliate",
+      "dich-vu-setup-aiva",
+      "dao-tao-ai-kem",
+      "template-workflow",
+      "prompt-pack",
+      "app-partner-chinh-thuc"
+    ],
+    "forbiddenCategories": [
+      "tai-khoan-dung-chung",
+      "slot-family-gia-re",
+      "api-ai-cho-den",
+      "ban-lai-login-trai-tos",
+      "chatgpt-claude-shared",
+      "netflix-spotify-shared",
+      "thuc-pham",
+      "y-te",
+      "tai-chinh",
+      "hang-cam"
+    ]
+  },
+  "fund": {
+    "currency": "VND",
+    "initialCapital": 5000000,
+    "dailySpendCeiling": 300000,
+    "adsDailyCeiling": 150000,
+    "refundDailyCeiling": 200000,
+    "maxDiscountPercent": 15,
+    "minMarginPercent": 25,
+    "allowAutoTransfer": false,
+    "allowAutoAdsIncrease": false,
+    "allowLargePurchaseWithoutApproval": false
+  },
+  "approvals": {
+    "product": {
+      "id": "product",
+      "label": "Duyệt sản phẩm",
+      "required": true,
+      "description": "Chốt gói AIVA / dịch vụ setup nào được bán. Chỉ kênh chính chủ."
+    },
+    "budget": {
+      "id": "budget",
+      "label": "Duyệt ngân sách / mẫu tin",
+      "required": true,
+      "description": "Duyệt mẫu outreach và ngân sách ads trong trần ngày."
+    },
+    "exception": {
+      "id": "exception",
+      "label": "Duyệt ngoại lệ",
+      "required": true,
+      "description": "Hoàn tiền lớn, giảm giá vượt mức, việc ngoài luật → hỏi bạn."
+    }
+  },
+  "agents": [
+    {
+      "id": "dieu-phoi",
+      "name": "Điều phối",
+      "role": "Orchestrator",
+      "mission": "Chia việc, gom báo cáo hoa hồng/đơn AIVA, đẩy duyệt lên chủ quỹ."
+    },
+    {
+      "id": "san-pham",
+      "name": "Sản phẩm",
+      "role": "Product Scout",
+      "mission": "So sánh gói Free/Basic/Pro/VIP + gói setup kèm — chỉ đề xuất kênh chính chủ."
+    },
+    {
+      "id": "khach-hang",
+      "name": "Khách hàng",
+      "role": "Lead Hunter",
+      "mission": "Săn chủ shop/marketer cần AI tiếng Việt; soạn tin nháp sau khi duyệt mẫu."
+    },
+    {
+      "id": "ban-hang",
+      "name": "Bán hàng",
+      "role": "Closer",
+      "mission": "Tư vấn gói AIVA + upsell setup; gửi link AFF/đại lý chính chủ; không bán shared account."
+    }
+  ]
+}
