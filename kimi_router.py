@@ -1,10 +1,11 @@
-"""Chat with Kimi K3 (Moonshot AI) through the OpenRouter router.
+"""Chat with Kimi K3 (Moonshot AI) via OpenRouter or the direct Moonshot API.
 
 Usage:
     python kimi_router.py "Your question here"
     python kimi_router.py            # interactive chat mode
 
-Requires the OPENROUTER_API_KEY environment variable (see .env.example).
+Set KIMI_PROVIDER=openrouter (default) or KIMI_PROVIDER=moonshot in .env.
+See .env.example for the API key variables each provider needs.
 """
 
 import os
@@ -15,18 +16,39 @@ from openai import OpenAI
 
 load_dotenv()
 
-ROUTER_BASE_URL = "https://openrouter.ai/api/v1"
-MODEL_ID = os.getenv("KIMI_MODEL_ID", "moonshotai/kimi-k3")
+PROVIDERS = {
+    "openrouter": {
+        "base_url": "https://openrouter.ai/api/v1",
+        "key_env": "OPENROUTER_API_KEY",
+        "default_model": "moonshotai/kimi-k3",
+        "key_url": "https://openrouter.ai/keys",
+    },
+    "moonshot": {
+        "base_url": "https://api.moonshot.cn/v1",
+        "key_env": "MOONSHOT_API_KEY",
+        "default_model": "kimi-k3",
+        "key_url": "https://platform.kimi.ai",
+    },
+}
+
+PROVIDER_NAME = os.getenv("KIMI_PROVIDER", "openrouter").lower()
+if PROVIDER_NAME not in PROVIDERS:
+    sys.exit(
+        f"Error: unknown KIMI_PROVIDER '{PROVIDER_NAME}'. "
+        f"Use one of: {', '.join(PROVIDERS)}"
+    )
+PROVIDER = PROVIDERS[PROVIDER_NAME]
+MODEL_ID = os.getenv("KIMI_MODEL_ID", PROVIDER["default_model"])
 
 
 def build_client() -> OpenAI:
-    api_key = os.getenv("OPENROUTER_API_KEY")
+    api_key = os.getenv(PROVIDER["key_env"])
     if not api_key:
         sys.exit(
-            "Error: OPENROUTER_API_KEY is not set.\n"
-            "Copy .env.example to .env and add your key from https://openrouter.ai/keys"
+            f"Error: {PROVIDER['key_env']} is not set.\n"
+            f"Copy .env.example to .env and add your key from {PROVIDER['key_url']}"
         )
-    return OpenAI(base_url=ROUTER_BASE_URL, api_key=api_key)
+    return OpenAI(base_url=PROVIDER["base_url"], api_key=api_key)
 
 
 def ask(client: OpenAI, messages: list[dict]) -> str:
@@ -56,7 +78,7 @@ def main() -> None:
         ask(client, messages)
         return
 
-    print(f"Chatting with {MODEL_ID} via OpenRouter. Type 'exit' to quit.\n")
+    print(f"Chatting with {MODEL_ID} via {PROVIDER_NAME}. Type 'exit' to quit.\n")
     while True:
         try:
             user_input = input("You: ").strip()
