@@ -8,11 +8,40 @@ const PUBLIC_DIR = path.join(__dirname, "public");
 
 const PORT = Number(process.env.PORT || 3000);
 const API_KEY = process.env.HERMES_API_KEY || "";
-const BASE_URL = (process.env.HERMES_BASE_URL || "https://openrouter.ai/api/v1").replace(/\/+$/, "");
-const MODEL = process.env.HERMES_MODEL || "nousresearch/hermes-3-llama-3.1-70b";
-// Ollama chạy local không cần API key
-const IS_LOCAL = /^https?:\/\/(localhost|127\.0\.0\.1)/.test(BASE_URL);
-const DEMO_MODE = !API_KEY && !IS_LOCAL;
+const OLLAMA_URL = "http://localhost:11434";
+
+let BASE_URL = (process.env.HERMES_BASE_URL || "https://openrouter.ai/api/v1").replace(/\/+$/, "");
+let MODEL = process.env.HERMES_MODEL || "nousresearch/hermes-3-llama-3.1-70b";
+let DEMO_MODE = true;
+
+// Nếu người dùng không cấu hình gì mà máy đang chạy Ollama thì tự động dùng Ollama
+async function detectConfig() {
+  if (!process.env.HERMES_BASE_URL && !API_KEY) {
+    try {
+      const res = await fetch(`${OLLAMA_URL}/api/tags`, { signal: AbortSignal.timeout(1500) });
+      const { models = [] } = await res.json();
+      const names = models.map((m) => m.name);
+      const preferred =
+        process.env.HERMES_MODEL ||
+        names.find((n) => n.toLowerCase().includes("hermes")) ||
+        names[0];
+      if (preferred) {
+        BASE_URL = `${OLLAMA_URL}/v1`;
+        MODEL = preferred;
+        DEMO_MODE = false;
+        console.log(`Đã phát hiện Ollama đang chạy — dùng model "${MODEL}".`);
+        return;
+      }
+      console.log(
+        'Ollama đang chạy nhưng chưa có model nào. Hãy chạy "ollama pull hermes3" rồi khởi động lại.'
+      );
+    } catch {
+      // Không có Ollama local — rơi xuống kiểm tra bên dưới
+    }
+  }
+  const isLocal = /^https?:\/\/(localhost|127\.0\.0\.1)/.test(BASE_URL);
+  DEMO_MODE = !API_KEY && !isLocal;
+}
 
 const SYSTEM_PROMPT =
   process.env.HERMES_SYSTEM_PROMPT ||
@@ -80,9 +109,9 @@ function sseSend(res, event, data) {
 async function streamDemoReply(res, lastUserMessage) {
   const reply =
     `Xin chào! Mình là Hermes (chế độ demo). Bạn vừa nói: "${lastUserMessage}".\n\n` +
-    "Hiện server chưa được cấu hình API key nên mình chỉ trả lời mẫu. " +
-    "Để trò chuyện thật với Hermes, hãy đặt biến môi trường HERMES_API_KEY " +
-    "(ví dụ key của OpenRouter) hoặc trỏ HERMES_BASE_URL tới Ollama đang chạy local. " +
+    "Hiện server chưa kết nối được với mô hình nào nên mình chỉ trả lời mẫu. " +
+    "Nếu máy bạn có Ollama, hãy chạy \"ollama pull hermes3\" rồi khởi động lại server — " +
+    "mình sẽ tự động kết nối. Hoặc đặt biến môi trường HERMES_API_KEY (key của OpenRouter). " +
     "Xem hướng dẫn chi tiết trong README.md nhé!";
   startSSE(res);
   for (const word of reply.split(/(?<= )/)) {
@@ -181,9 +210,11 @@ const server = http.createServer(async (req, res) => {
   res.writeHead(405).end("Method not allowed");
 });
 
+await detectConfig();
+
 server.listen(PORT, () => {
   console.log(`Hermes Chat đang chạy tại http://localhost:${PORT}`);
   console.log(`  Model   : ${MODEL}`);
   console.log(`  Endpoint: ${BASE_URL}`);
-  console.log(`  Chế độ  : ${DEMO_MODE ? "DEMO (chưa có HERMES_API_KEY)" : "KẾT NỐI THẬT"}`);
+  console.log(`  Chế độ  : ${DEMO_MODE ? "DEMO (chưa có API key / Ollama)" : "KẾT NỐI THẬT"}`);
 });
