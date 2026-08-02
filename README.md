@@ -81,6 +81,17 @@ Mỗi thành viên có một "cửa" để vào phòng:
 
 Ghi chú: các **app desktop** (ChatGPT desktop, Hermes desktop…) là giao diện đóng — AI vào phòng qua API/CLI của nền tảng đó chứ không qua app. Thành viên kiểu `command` chạy lệnh bất kỳ: `{prompt}` trong `args` sẽ được thay bằng nội dung cuộc họp, phản hồi lấy từ stdout — nhờ đó có thể nối gần như mọi AI có CLI.
 
+## Khắc phục sự cố — "không ai trả lời"
+
+1. **Kiểm tra đúng nhánh code**: nếu PR chưa được merge, nhánh `main` chưa có app. Chạy `git checkout cursor/hermes-chat-394e` rồi `node server.js`.
+2. **Nhìn dòng chữ console in ra khi khởi động** — nó nói rõ tình trạng:
+   - `Chế độ: KẾT NỐI THẬT` → ổn. `Chế độ: DEMO` → Ollama chưa chạy hoặc chưa có model: chạy `ollama list` kiểm tra, thiếu thì `ollama pull hermes3`, rồi khởi động lại server.
+   - `Văn phòng ảo: N thành viên` → xem có đúng các AI bạn khai không.
+3. **Văn phòng ảo**: thành viên chưa sẵn sàng (chưa cài CLI, thiếu API key, gateway chưa chạy) sẽ hiện dòng ⚠️ và **tạm rời phòng — các AI khác vẫn tiếp tục**. Xoá hẳn thành viên chưa dùng khỏi `office.json` cho phòng gọn.
+4. **Cổng bận**: nếu 3000 đã bị chiếm, chạy `PORT=3001 node server.js` rồi mở `http://localhost:3001`.
+5. Mở app bằng trình duyệt **trên chính máy đang chạy server** (localhost), không mở từ điện thoại.
+6. Vẫn kẹt? Chụp màn hình cửa sổ console (nơi chạy `node server.js`) và màn hình app rồi gửi — dòng lỗi ở console là manh mối chính.
+
 ## Biến môi trường
 
 | Biến | Mặc định | Ý nghĩa |

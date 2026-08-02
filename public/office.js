@@ -81,6 +81,7 @@ async function fetchConfig() {
       b.style.color = p.color;
       b.textContent = `${p.icon} ${p.name}`;
       participantsEl.appendChild(b);
+      p.badgeEl = b;
     }
     const brain = cfg.brainFiles ? ` · 🧠 ${cfg.brainFiles} ghi chú` : "";
     statusEl.textContent = cfg.demoMode
@@ -152,8 +153,19 @@ async function agentTurn(agent) {
   saveTranscript();
 }
 
+function disableParticipant(p) {
+  p.disabled = true;
+  if (p.badgeEl) {
+    p.badgeEl.style.opacity = "0.35";
+    p.badgeEl.title = "Thành viên này gặp lỗi và tạm rời phòng";
+  }
+}
+
+// Vòng họp: mỗi AI còn hoạt động phát biểu lần lượt; AI nào lỗi thì
+// tạm rời phòng và các thành viên khác vẫn tiếp tục
 async function runMeeting() {
-  if (debating || !participants.length) return;
+  const enabled = participants.filter((p) => !p.disabled);
+  if (debating || !enabled.length) return;
   debating = true;
   stopRequested = false;
   stopBtn.hidden = false;
@@ -164,20 +176,33 @@ async function runMeeting() {
     ? (participants.findIndex((p) => p.name === lastAgent.name) + 1) % participants.length
     : 0;
 
-  const totalTurns = participants.length * ROUNDS_PER_PROMPT;
+  const maxTurns = enabled.length * ROUNDS_PER_PROMPT;
+  let spoken = 0;
   try {
-    for (let i = 0; i < totalTurns && !stopRequested; i++) {
-      await agentTurn(participants[idx]);
+    while (spoken < maxTurns && !stopRequested) {
+      const p = participants[idx];
       idx = (idx + 1) % participants.length;
-      if (!stopRequested && i < totalTurns - 1) {
+      if (p.disabled) continue;
+      try {
+        await agentTurn(p);
+        spoken++;
+      } catch (err) {
+        disableParticipant(p);
+        addNote(`⚠️ ${err.message} — ${p.name} tạm rời phòng, các AI khác tiếp tục.`);
+        if (participants.every((x) => x.disabled)) break;
+      }
+      if (!stopRequested && spoken < maxTurns) {
         await new Promise((r) => setTimeout(r, 600));
       }
     }
-    if (!stopRequested) {
+    if (participants.every((x) => x.disabled)) {
+      addNote(
+        "⚠️ Tất cả AI trong phòng đều gặp lỗi. Kiểm tra Ollama (ollama list) và cấu hình office.json, " +
+        "khởi động lại server rồi tải lại trang."
+      );
+    } else if (!stopRequested) {
       addNote("— Cả văn phòng tạm nghỉ, chờ anh Thành nhắn tiếp —");
     }
-  } catch (err) {
-    addNote(`⚠️ ${err.message}`);
   } finally {
     debating = false;
     stopBtn.hidden = true;
