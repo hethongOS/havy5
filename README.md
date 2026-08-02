@@ -8,6 +8,7 @@
 - Có **chế độ demo** để chạy thử ngay cả khi chưa có API key
 - **Phòng tranh luận** (`/arena.html`): bạn giao nhiệm vụ, hai AI persona (Cursor ⚙️ — kỹ sư thực dụng, và Hermes ⚡ — uyên bác lạc quan) tự tranh luận qua lại trước mắt bạn, bạn chen vào bất cứ lúc nào
 - **Nạp Second Brain**: chỉ đường dẫn tới thư mục ghi chú cá nhân (.md/.txt), cả Hermes lẫn hai AI tranh luận sẽ đọc trước để hiểu bối cảnh và mong muốn của bạn
+- **Văn phòng ảo** (`/office.html`): phòng làm việc chung — khai báo bao nhiêu AI cũng được trong `office.json` (Hermes qua Ollama, ChatGPT qua API key, Cursor thật qua Cursor CLI, OpenClaw qua gateway…), bạn giao việc một lần và tất cả lần lượt tham gia bàn bạc
 
 ## Chạy nhanh (có sẵn Ollama trên máy)
 
@@ -58,6 +59,26 @@ HERMES_API_KEY=... \
 HERMES_MODEL=ten-model \
 node server.js
 ```
+
+## Văn phòng ảo — mời nhiều AI vào cùng một phòng
+
+Mở `http://localhost:3000/office.html`. Mặc định phòng có 2 persona (Cursor ⚙️ và Hermes ⚡ chạy trên model chung). Để mời AI thật của từng nền tảng, sao chép `office.config.example.json` thành `office.json` rồi sửa:
+
+```bash
+cp office.config.example.json office.json
+# sửa office.json rồi khởi động lại: node server.js
+```
+
+Mỗi thành viên có một "cửa" để vào phòng:
+
+| Thành viên | Kiểu | Cần khai báo gì |
+|---|---|---|
+| **Hermes** (Ollama) | `model` | `baseUrl: http://localhost:11434/v1`, `model: hermes3` — không cần key |
+| **Cursor thật** | `command` | Cài [Cursor CLI](https://cursor.com/cli) (`curl https://cursor.com/install -fsS \| bash`), đăng nhập, để `cmd: cursor-agent` |
+| **ChatGPT** | `model` | API key của OpenAI trong biến môi trường `OPENAI_API_KEY` (app ChatGPT desktop không có cổng cho việc này) |
+| **OpenClaw** | `model` | URL gateway OpenClaw trên máy bạn (nếu gateway mở API kiểu OpenAI) |
+
+Ghi chú: các **app desktop** (ChatGPT desktop, Hermes desktop…) là giao diện đóng — AI vào phòng qua API/CLI của nền tảng đó chứ không qua app. Thành viên kiểu `command` chạy lệnh bất kỳ: `{prompt}` trong `args` sẽ được thay bằng nội dung cuộc họp, phản hồi lấy từ stdout — nhờ đó có thể nối gần như mọi AI có CLI.
 
 ## Biến môi trường
 

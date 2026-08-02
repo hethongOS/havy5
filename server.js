@@ -1,5 +1,6 @@
 import http from "node:http";
 import { readFile, readdir, stat } from "node:fs/promises";
+import { spawn } from "node:child_process";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -145,6 +146,60 @@ const PERSONAS = {
   },
 };
 
+// ---------- Văn phòng ảo: phòng chat nhóm với các AI khai báo trong office.json ----------
+const OFFICE_FILE = path.join(__dirname, "office.json");
+let OFFICE_PARTICIPANTS = [];
+
+function officeRules(selfName, allNames) {
+  const others = allNames.filter((n) => n !== selfName).join(", ");
+  return (
+    `Bạn là ${selfName}, một thành viên AI trong "Văn phòng ảo" — phòng làm việc nhóm gồm ` +
+    `anh Thành (con người, sếp giao việc) và các AI: ${others}. ` +
+    "Hãy làm việc bằng tiếng Việt: đóng góp ý kiến thực chất, phản hồi trực tiếp ý của thành viên khác " +
+    "(gọi thẳng tên), và luôn ưu tiên yêu cầu mới nhất của anh Thành. Mỗi lượt nói TỐI ĐA 4 câu, " +
+    'xưng "mình". Chỉ viết nội dung lượt nói của chính bạn — không viết tên bạn ở đầu, ' +
+    "không đóng vai người khác."
+  );
+}
+
+async function loadOffice() {
+  let cfg = null;
+  try {
+    cfg = JSON.parse(await readFile(OFFICE_FILE, "utf8"));
+  } catch {
+    // Không có office.json — dùng đội hình mặc định bên dưới
+  }
+
+  if (cfg && Array.isArray(cfg.participants) && cfg.participants.length) {
+    OFFICE_PARTICIPANTS = cfg.participants.filter(
+      (p) => p && typeof p.id === "string" && typeof p.name === "string" &&
+        ["model", "command"].includes(p.type)
+    );
+    console.log(
+      `Văn phòng ảo: ${OFFICE_PARTICIPANTS.length} thành viên AI từ office.json — ` +
+      OFFICE_PARTICIPANTS.map((p) => p.name).join(", ")
+    );
+  } else {
+    // Mặc định: hai persona Cursor/Hermes chạy trên model chung
+    OFFICE_PARTICIPANTS = [
+      {
+        id: "cursor", name: "Cursor", icon: "⚙️", type: "model",
+        persona: "Tính cách: kỹ sư thực dụng, logic, hoài nghi, coi trọng tính khả thi và rủi ro.",
+      },
+      {
+        id: "hermes", name: "Hermes", icon: "⚡", type: "model",
+        persona: "Tính cách: uyên bác, lạc quan, giàu trí tưởng tượng, coi trọng ý tưởng lớn.",
+      },
+    ];
+  }
+}
+
+function resolveApiKey(p) {
+  if (p.apiKey) return p.apiKey;
+  if (p.apiKeyEnv) return process.env[p.apiKeyEnv] || "";
+  return "";
+}
+
 const MIME = {
   ".html": "text/html; charset=utf-8",
   ".css": "text/css; charset=utf-8",
@@ -220,20 +275,24 @@ async function streamDemoReply(res, lastUserMessage) {
   res.end();
 }
 
-// Gọi API kiểu OpenAI và chuyển tiếp kết quả streaming về client dưới dạng SSE
-async function proxyCompletion(res, messages) {
+// Gọi API kiểu OpenAI và chuyển tiếp kết quả streaming về client dưới dạng SSE.
+// opts cho phép ghi đè baseUrl/model/apiKey theo từng thành viên Văn phòng ảo.
+async function proxyCompletion(res, messages, opts = {}) {
+  const baseUrl = (opts.baseUrl || BASE_URL).replace(/\/+$/, "");
+  const model = opts.model || MODEL;
+  const apiKey = opts.apiKey ?? API_KEY;
   let upstream;
   try {
-    upstream = await fetch(`${BASE_URL}/chat/completions`, {
+    upstream = await fetch(`${baseUrl}/chat/completions`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        ...(API_KEY ? { Authorization: `Bearer ${API_KEY}` } : {}),
+        ...(apiKey ? { Authorization: `Bearer ${apiKey}` } : {}),
       },
-      body: JSON.stringify({ model: MODEL, stream: true, messages }),
+      body: JSON.stringify({ model, stream: true, messages }),
     });
   } catch (err) {
-    return sendJSON(res, 502, { error: `Không kết nối được tới ${BASE_URL}: ${err.message}` });
+    return sendJSON(res, 502, { error: `Không kết nối được tới ${baseUrl}: ${err.message}` });
   }
 
   if (!upstream.ok) {
@@ -332,6 +391,90 @@ async function handleArenaTurn(req, res) {
   ]);
 }
 
+// Thành viên kiểu "command": chạy một CLI (ví dụ cursor-agent) để lấy lượt trả lời,
+// stream stdout về client theo thời gian thực
+function runCommandTurn(res, participant, prompt) {
+  const args = (participant.args || []).map((a) => a.replaceAll("{prompt}", prompt));
+  let child;
+  try {
+    child = spawn(participant.cmd, args, { timeout: 300_000 });
+  } catch (err) {
+    return sendJSON(res, 500, { error: `Không chạy được lệnh "${participant.cmd}": ${err.message}` });
+  }
+
+  startSSE(res);
+  const decoder = new TextDecoder();
+  let sentAny = false;
+  child.stdout.on("data", (chunk) => {
+    const text = decoder.decode(chunk, { stream: true });
+    if (text) {
+      sentAny = true;
+      sseSend(res, "delta", { content: text });
+    }
+  });
+  let errText = "";
+  child.stderr.on("data", (chunk) => (errText += chunk));
+  child.on("error", (err) => {
+    sseSend(res, "error", { error: `Lỗi lệnh "${participant.cmd}": ${err.message}` });
+    res.end();
+  });
+  child.on("close", (code) => {
+    if (!sentAny && code !== 0) {
+      sseSend(res, "error", {
+        error: `Lệnh "${participant.cmd}" thoát mã ${code}: ${errText.slice(0, 300)}`,
+      });
+    } else {
+      sseSend(res, "done", {});
+    }
+    res.end();
+  });
+}
+
+// Một lượt phát biểu trong Văn phòng ảo: định tuyến tới đúng "cửa" của thành viên
+async function handleOfficeTurn(req, res) {
+  let payload;
+  try {
+    payload = JSON.parse(await readBody(req));
+  } catch {
+    return sendJSON(res, 400, { error: "JSON không hợp lệ" });
+  }
+  const p = OFFICE_PARTICIPANTS.find((x) => x.id === payload.speaker);
+  const transcript = Array.isArray(payload.transcript) ? payload.transcript : [];
+  const valid = transcript.every(
+    (t) => t && typeof t.name === "string" && typeof t.content === "string"
+  );
+  if (!p || !transcript.length || !valid) {
+    return sendJSON(res, 400, { error: "Trường speaker hoặc transcript không hợp lệ" });
+  }
+
+  const allNames = OFFICE_PARTICIPANTS.map((x) => x.name);
+  const systemPrompt =
+    officeRules(p.name, allNames) +
+    (p.persona ? `\n${p.persona}` : "") +
+    brainSection();
+  const log = transcript.map((t) => `${t.name}: ${t.content}`).join("\n\n");
+  const turnRequest =
+    `Cuộc trò chuyện trong văn phòng đến lúc này:\n\n${log}\n\n` +
+    `Bây giờ đến lượt bạn (${p.name}). Viết đúng một lượt nói của bạn, không kèm tên ở đầu.`;
+
+  if (p.type === "command") {
+    return runCommandTurn(res, p, `${systemPrompt}\n\n${turnRequest}`);
+  }
+
+  // type "model": nếu không khai baseUrl riêng và server đang ở chế độ demo thì trả lời mẫu
+  if (!p.baseUrl && DEMO_MODE) {
+    return streamDemoReply(res, transcript[transcript.length - 1].content);
+  }
+  return proxyCompletion(
+    res,
+    [
+      { role: "system", content: systemPrompt },
+      { role: "user", content: turnRequest },
+    ],
+    { baseUrl: p.baseUrl, model: p.model, apiKey: p.baseUrl ? resolveApiKey(p) : undefined }
+  );
+}
+
 const server = http.createServer(async (req, res) => {
   const { pathname } = new URL(req.url, "http://localhost");
   if (req.method === "GET" && pathname === "/api/config") {
@@ -348,6 +491,22 @@ const server = http.createServer(async (req, res) => {
   if (req.method === "POST" && pathname === "/api/arena/turn") {
     return handleArenaTurn(req, res);
   }
+  if (req.method === "GET" && pathname === "/api/office/config") {
+    return sendJSON(res, 200, {
+      demoMode: DEMO_MODE,
+      brainFiles: BRAIN_FILES,
+      participants: OFFICE_PARTICIPANTS.map((p) => ({
+        id: p.id,
+        name: p.name,
+        icon: p.icon || "🤖",
+        type: p.type,
+        model: p.type === "model" ? p.model || MODEL : undefined,
+      })),
+    });
+  }
+  if (req.method === "POST" && pathname === "/api/office/turn") {
+    return handleOfficeTurn(req, res);
+  }
   if (req.method === "GET" || req.method === "HEAD") {
     return serveStatic(req, res);
   }
@@ -356,6 +515,7 @@ const server = http.createServer(async (req, res) => {
 
 await detectConfig();
 await loadBrain();
+await loadOffice();
 
 server.listen(PORT, () => {
   console.log(`Hermes Chat đang chạy tại http://localhost:${PORT}`);
