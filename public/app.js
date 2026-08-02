@@ -9,6 +9,20 @@ const STORAGE_KEY = "hermes-chat-history";
 let history = [];
 let busy = false;
 
+// Nội dung màn hình chào — tagline và gợi ý do Hermes cùng chốt
+const WELCOME_HTML = `
+  <div class="welcome">
+    <div class="welcome-icon">⚡</div>
+    <h2>Chào bạn, mình là Hermes!</h2>
+    <p>Người bạn AI của bạn — hỏi gì cũng được!</p>
+    <div class="suggestions">
+      <button class="chip">Kể mình một sự thật thú vị đi</button>
+      <button class="chip">Viết giúp mình một bài thơ ngắn</button>
+      <button class="chip">Gợi ý món ăn tối nay nhé</button>
+      <button class="chip">AI hoạt động như thế nào vậy?</button>
+    </div>
+  </div>`;
+
 function loadHistory() {
   try {
     const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
@@ -151,13 +165,13 @@ input.addEventListener("input", () => {
 clearBtn.addEventListener("click", () => {
   history = [];
   localStorage.removeItem(STORAGE_KEY);
-  messagesEl.innerHTML = `
-    <div class="welcome">
-      <div class="welcome-icon">⚡</div>
-      <h2>Chào bạn, mình là Hermes!</h2>
-      <p>Hãy nhắn gì đó để bắt đầu trò chuyện nhé.</p>
-    </div>`;
+  messagesEl.innerHTML = WELCOME_HTML;
   input.focus();
+});
+
+messagesEl.addEventListener("click", (e) => {
+  const chip = e.target.closest(".chip");
+  if (chip && !busy) sendMessage(chip.textContent.trim());
 });
 
 fetchConfig();

@@ -124,6 +124,32 @@ body {
   margin-bottom: 6px;
 }
 
+.suggestions {
+  margin-top: 20px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  max-width: 480px;
+}
+
+.chip {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text);
+  font: inherit;
+  font-size: 13.5px;
+  padding: 9px 14px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.chip:hover {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+
 .msg {
   max-width: 78%;
   padding: 12px 16px;
