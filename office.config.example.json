@@ -1,0 +1,52 @@
+{
+  "_huong_dan": "Sao chép file này thành office.json rồi sửa theo máy của bạn. Xoá thành viên không dùng. Kiểu 'model' = gọi API kiểu OpenAI; kiểu 'command' = chạy một lệnh CLI, {prompt} sẽ được thay bằng nội dung cuộc họp.",
+  "participants": [
+    {
+      "id": "hermes",
+      "name": "Hermes",
+      "icon": "⚡",
+      "type": "model",
+      "baseUrl": "http://localhost:11434/v1",
+      "model": "hermes3",
+      "persona": "Tính cách: uyên bác, lạc quan, giàu trí tưởng tượng."
+    },
+    {
+      "id": "cursor",
+      "name": "Cursor",
+      "icon": "⚙️",
+      "type": "command",
+      "cmd": "cursor-agent",
+      "args": ["-p", "{prompt}", "--output-format", "text"],
+      "persona": "Tính cách: kỹ sư thực dụng, logic, coi trọng tính khả thi."
+    },
+    {
+      "id": "chatgpt",
+      "name": "ChatGPT",
+      "icon": "🤖",
+      "type": "model",
+      "baseUrl": "https://api.openai.com/v1",
+      "model": "gpt-4o-mini",
+      "apiKeyEnv": "OPENAI_API_KEY",
+      "persona": "Tính cách: toàn diện, cẩn trọng, giỏi tổng hợp."
+    },
+    {
+      "id": "openclaw",
+      "name": "OpenClaw",
+      "icon": "🦞",
+      "type": "model",
+      "baseUrl": "http://localhost:18789/v1",
+      "model": "default",
+      "apiKeyEnv": "OPENCLAW_API_KEY",
+      "persona": "Tính cách: trợ lý cá nhân nhanh nhẹn, thực tế."
+    },
+    {
+      "id": "claude",
+      "name": "Claude",
+      "icon": "🧠",
+      "type": "command",
+      "cmd": "claude",
+      "args": ["-p", "{prompt}"],
+      "persona": "Tính cách: sâu sắc, cẩn trọng, giỏi phân tích nhiều chiều."
+    }
+  ]
+}

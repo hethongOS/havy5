@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Phòng tranh luận — Hermes Chat</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="icon" href="data:image/svg+xml,&lt;svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'&gt;&lt;text y='.9em' font-size='90'&gt;⚔️&lt;/text&gt;&lt;/svg&gt;" />
+</head>
+<body>
+  <div class="app">
+    <header class="header">
+      <div class="header-left">
+        <div class="avatar" aria-hidden="true">⚔️</div>
+        <div>
+          <h1>Phòng tranh luận</h1>
+          <p id="status" class="status">Đang kết nối…</p>
+        </div>
+      </div>
+      <div class="header-actions">
+        <span class="participants">
+          <span class="badge badge-user">Anh Thành</span>
+          <span class="badge badge-cursor">⚙️ Cursor</span>
+          <span class="badge badge-hermes">⚡ Hermes</span>
+        </span>
+        <button id="stop-btn" class="clear-btn stop-btn" hidden>⏸ Dừng tranh luận</button>
+        <button id="clear-btn" class="clear-btn" title="Xoá và bắt đầu lại">Làm mới</button>
+        <a class="clear-btn nav-link" href="index.html">← Chat riêng</a>
+      </div>
+    </header>
+
+    <main id="messages" class="messages" aria-live="polite">
+      <div class="welcome">
+        <div class="welcome-icon">⚔️</div>
+        <h2>Giao nhiệm vụ để hai AI tranh luận!</h2>
+        <p>Anh nhắn một chủ đề hoặc nhiệm vụ — Cursor và Hermes sẽ tự bàn bạc, tranh luận với nhau ngay tại đây. Anh có thể chen vào bất cứ lúc nào.</p>
+        <div class="suggestions">
+          <button class="chip">Làm app học tiếng Anh thì nên bắt đầu từ đâu?</button>
+          <button class="chip">AI sẽ thay thế lập trình viên không?</button>
+          <button class="chip">Nên học sâu một nghề hay biết rộng nhiều nghề?</button>
+        </div>
+      </div>
+    </main>
+
+    <footer class="composer">
+      <form id="chat-form">
+        <textarea
+          id="input"
+          rows="1"
+          placeholder="Giao nhiệm vụ hoặc chen vào cuộc tranh luận…"
+          autocomplete="off"
+          autofocus
+        ></textarea>
+        <button id="send-btn" type="submit" aria-label="Gửi">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+            <path d="M3.4 20.4 20.85 12 3.4 3.6l-.01 6.53L15 12 3.39 13.87z"/>
+          </svg>
+        </button>
+      </form>
+      <p class="hint">Sau khi anh nhắn, hai AI sẽ thay phiên tranh luận (tối đa 6 lượt) rồi chờ anh</p>
+    </footer>
+  </div>
+  <script src="arena.js"></script>
+</body>
+</html>

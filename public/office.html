@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Văn phòng ảo — Hermes Chat</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="icon" href="data:image/svg+xml,&lt;svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'&gt;&lt;text y='.9em' font-size='90'&gt;🏢&lt;/text&gt;&lt;/svg&gt;" />
+</head>
+<body>
+  <div class="app">
+    <header class="header">
+      <div class="header-left">
+        <div class="avatar" aria-hidden="true">🏢</div>
+        <div>
+          <h1>Văn phòng ảo</h1>
+          <p id="status" class="status">Đang kết nối…</p>
+        </div>
+      </div>
+      <div class="header-actions">
+        <span id="participants" class="participants"></span>
+        <button id="stop-btn" class="clear-btn stop-btn" hidden>⏸ Dừng</button>
+        <button id="clear-btn" class="clear-btn" title="Xoá và bắt đầu lại">Làm mới</button>
+        <a class="clear-btn nav-link" href="index.html">← Chat riêng</a>
+      </div>
+    </header>
+
+    <main id="messages" class="messages" aria-live="polite">
+      <div class="welcome">
+        <div class="welcome-icon">🏢</div>
+        <h2>Văn phòng ảo của anh Thành</h2>
+        <p>Giao việc một lần — tất cả AI trong phòng sẽ lần lượt tham gia bàn bạc. Khai báo thành viên trong file <code>office.json</code> (xem <code>office.config.example.json</code>).</p>
+      </div>
+    </main>
+
+    <footer class="composer">
+      <form id="chat-form">
+        <textarea
+          id="input"
+          rows="1"
+          placeholder="Giao việc cho cả văn phòng…"
+          autocomplete="off"
+          autofocus
+        ></textarea>
+        <button id="send-btn" type="submit" aria-label="Gửi">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+            <path d="M3.4 20.4 20.85 12 3.4 3.6l-.01 6.53L15 12 3.39 13.87z"/>
+          </svg>
+        </button>
+      </form>
+      <p class="hint">Sau tin nhắn của anh, mỗi AI phát biểu lần lượt (2 vòng) rồi chờ anh · chen vào lúc nào cũng được</p>
+    </footer>
+  </div>
+  <script src="office.js"></script>
+</body>
+</html>
