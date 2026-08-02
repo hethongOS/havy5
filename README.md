@@ -77,6 +77,7 @@ Mỗi thành viên có một "cửa" để vào phòng:
 | **Cursor thật** | `command` | Cài [Cursor CLI](https://cursor.com/cli) (`curl https://cursor.com/install -fsS \| bash`), đăng nhập, để `cmd: cursor-agent` |
 | **ChatGPT** | `model` | API key của OpenAI trong biến môi trường `OPENAI_API_KEY` (app ChatGPT desktop không có cổng cho việc này) |
 | **OpenClaw** | `model` | URL gateway OpenClaw trên máy bạn (nếu gateway mở API kiểu OpenAI) |
+| **Claude** | `command` | Cài [Claude Code CLI](https://www.anthropic.com/claude-code) (`npm install -g @anthropic-ai/claude-code`), đăng nhập bằng tài khoản Claude Pro/Max sẵn có, để `cmd: claude`, `args: ["-p", "{prompt}"]`. (Hoặc kiểu `model` với `baseUrl: https://api.anthropic.com/v1` + API key Anthropic) |
 
 Ghi chú: các **app desktop** (ChatGPT desktop, Hermes desktop…) là giao diện đóng — AI vào phòng qua API/CLI của nền tảng đó chứ không qua app. Thành viên kiểu `command` chạy lệnh bất kỳ: `{prompt}` trong `args` sẽ được thay bằng nội dung cuộc họp, phản hồi lấy từ stdout — nhờ đó có thể nối gần như mọi AI có CLI.
 

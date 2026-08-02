@@ -38,6 +38,15 @@
       "model": "default",
       "apiKeyEnv": "OPENCLAW_API_KEY",
       "persona": "Tính cách: trợ lý cá nhân nhanh nhẹn, thực tế."
+    },
+    {
+      "id": "claude",
+      "name": "Claude",
+      "icon": "🧠",
+      "type": "command",
+      "cmd": "claude",
+      "args": ["-p", "{prompt}"],
+      "persona": "Tính cách: sâu sắc, cẩn trọng, giỏi phân tích nhiều chiều."
     }
   ]
 }
