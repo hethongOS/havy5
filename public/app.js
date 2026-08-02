@@ -60,11 +60,12 @@ async function fetchConfig() {
   try {
     const res = await fetch("/api/config");
     const cfg = await res.json();
+    const brain = cfg.brainFiles ? ` · 🧠 ${cfg.brainFiles} ghi chú` : "";
     if (cfg.demoMode) {
       statusEl.textContent = "Chế độ demo — chưa cấu hình API key";
       statusEl.classList.add("demo");
     } else {
-      statusEl.textContent = `Trực tuyến · ${cfg.model}`;
+      statusEl.textContent = `Trực tuyến · ${cfg.model}${brain}`;
     }
   } catch {
     statusEl.textContent = "Không kết nối được server";

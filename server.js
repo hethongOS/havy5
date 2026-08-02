@@ -1,5 +1,5 @@
 import http from "node:http";
-import { readFile } from "node:fs/promises";
+import { readFile, readdir, stat } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -41,6 +41,78 @@ async function detectConfig() {
   }
   const isLocal = /^https?:\/\/(localhost|127\.0\.0\.1)/.test(BASE_URL);
   DEMO_MODE = !API_KEY && !isLocal;
+}
+
+// ---------- Second Brain: nạp ghi chú cá nhân làm ngữ cảnh cho AI ----------
+// Đường dẫn lấy từ tham số dòng lệnh (node server.js /duong/dan) hoặc biến HERMES_BRAIN
+const BRAIN_DIR = process.argv[2] || process.env.HERMES_BRAIN || "";
+const BRAIN_EXTS = new Set([".md", ".txt", ".markdown", ".org"]);
+const BRAIN_MAX_PER_FILE = 4000; // ký tự tối đa mỗi ghi chú
+const BRAIN_MAX_TOTAL = 12000; // tổng ký tự tối đa (model nhỏ chạy CPU, prompt dài sẽ chậm)
+
+let BRAIN_CONTEXT = "";
+let BRAIN_FILES = 0;
+
+async function walkDir(dir, out) {
+  let entries;
+  try {
+    entries = await readdir(dir, { withFileTypes: true });
+  } catch {
+    return;
+  }
+  for (const e of entries) {
+    if (e.name.startsWith(".")) continue;
+    const full = path.join(dir, e.name);
+    if (e.isDirectory()) await walkDir(full, out);
+    else if (BRAIN_EXTS.has(path.extname(e.name).toLowerCase())) out.push(full);
+  }
+}
+
+async function loadBrain() {
+  if (!BRAIN_DIR) return;
+  const dir = path.resolve(BRAIN_DIR);
+  const files = [];
+  await walkDir(dir, files);
+  if (!files.length) {
+    console.log(`Second Brain: không tìm thấy ghi chú (.md/.txt) nào trong "${dir}".`);
+    return;
+  }
+
+  // Ưu tiên ghi chú mới sửa gần nhất
+  const withTime = await Promise.all(
+    files.map(async (f) => ({ f, mtime: (await stat(f)).mtimeMs }))
+  );
+  withTime.sort((a, b) => b.mtime - a.mtime);
+
+  const parts = [];
+  let total = 0;
+  for (const { f } of withTime) {
+    if (total >= BRAIN_MAX_TOTAL) break;
+    let text;
+    try {
+      text = (await readFile(f, "utf8")).trim();
+    } catch {
+      continue;
+    }
+    if (!text) continue;
+    if (text.length > BRAIN_MAX_PER_FILE) text = text.slice(0, BRAIN_MAX_PER_FILE) + "\n[...cắt bớt]";
+    const chunk = `### Ghi chú: ${path.relative(dir, f)}\n${text}`;
+    parts.push(chunk.slice(0, BRAIN_MAX_TOTAL - total));
+    total += chunk.length;
+    BRAIN_FILES++;
+  }
+  BRAIN_CONTEXT = parts.join("\n\n");
+  console.log(`Second Brain: đã nạp ${BRAIN_FILES}/${files.length} ghi chú (${total} ký tự) từ "${dir}".`);
+}
+
+function brainSection() {
+  if (!BRAIN_CONTEXT) return "";
+  return (
+    "\n\n--- SECOND BRAIN CỦA ANH THÀNH (ghi chú cá nhân, dùng làm bối cảnh) ---\n" +
+    BRAIN_CONTEXT +
+    "\n--- HẾT SECOND BRAIN ---\n" +
+    "Hãy dựa vào các ghi chú trên để hiểu bối cảnh, mục tiêu và mong muốn của anh Thành khi trả lời."
+  );
 }
 
 const SYSTEM_PROMPT =
@@ -220,7 +292,10 @@ async function handleChat(req, res) {
     return streamDemoReply(res, lastUser ? lastUser.content : "");
   }
 
-  return proxyCompletion(res, [{ role: "system", content: SYSTEM_PROMPT }, ...messages]);
+  return proxyCompletion(res, [
+    { role: "system", content: SYSTEM_PROMPT + brainSection() },
+    ...messages,
+  ]);
 }
 
 // Một lượt phát biểu trong Phòng tranh luận: nhận toàn bộ hội thoại nhóm,
@@ -247,7 +322,7 @@ async function handleArenaTurn(req, res) {
 
   const log = transcript.map((t) => `${t.name}: ${t.content}`).join("\n\n");
   return proxyCompletion(res, [
-    { role: "system", content: persona.prompt },
+    { role: "system", content: persona.prompt + brainSection() },
     {
       role: "user",
       content:
@@ -260,7 +335,12 @@ async function handleArenaTurn(req, res) {
 const server = http.createServer(async (req, res) => {
   const { pathname } = new URL(req.url, "http://localhost");
   if (req.method === "GET" && pathname === "/api/config") {
-    return sendJSON(res, 200, { model: MODEL, demoMode: DEMO_MODE, baseUrl: BASE_URL });
+    return sendJSON(res, 200, {
+      model: MODEL,
+      demoMode: DEMO_MODE,
+      baseUrl: BASE_URL,
+      brainFiles: BRAIN_FILES,
+    });
   }
   if (req.method === "POST" && pathname === "/api/chat") {
     return handleChat(req, res);
@@ -275,10 +355,12 @@ const server = http.createServer(async (req, res) => {
 });
 
 await detectConfig();
+await loadBrain();
 
 server.listen(PORT, () => {
   console.log(`Hermes Chat đang chạy tại http://localhost:${PORT}`);
   console.log(`  Model   : ${MODEL}`);
   console.log(`  Endpoint: ${BASE_URL}`);
   console.log(`  Chế độ  : ${DEMO_MODE ? "DEMO (chưa có API key / Ollama)" : "KẾT NỐI THẬT"}`);
+  console.log(`  Brain   : ${BRAIN_FILES ? `${BRAIN_FILES} ghi chú Second Brain` : "chưa nạp (truyền đường dẫn để nạp)"}`);
 });

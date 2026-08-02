@@ -7,6 +7,7 @@
 - Lưu lịch sử trò chuyện trong trình duyệt
 - Có **chế độ demo** để chạy thử ngay cả khi chưa có API key
 - **Phòng tranh luận** (`/arena.html`): bạn giao nhiệm vụ, hai AI persona (Cursor ⚙️ — kỹ sư thực dụng, và Hermes ⚡ — uyên bác lạc quan) tự tranh luận qua lại trước mắt bạn, bạn chen vào bất cứ lúc nào
+- **Nạp Second Brain**: chỉ đường dẫn tới thư mục ghi chú cá nhân (.md/.txt), cả Hermes lẫn hai AI tranh luận sẽ đọc trước để hiểu bối cảnh và mong muốn của bạn
 
 ## Chạy nhanh (có sẵn Ollama trên máy)
 
@@ -20,6 +21,21 @@ node server.js
 Mở trình duyệt tại <http://localhost:3000> là chat được ngay. Server **tự động phát hiện Ollama** đang chạy và chọn model Hermes (hoặc model đầu tiên có sẵn) — không cần cấu hình gì thêm.
 
 Nếu không có Ollama và chưa cấu hình API key, ứng dụng chạy ở **chế độ demo** (Hermes chỉ trả lời mẫu).
+
+## Nạp Second Brain (ghi chú cá nhân) cho AI
+
+Để cả Hermes lẫn hai AI trong Phòng tranh luận đọc ghi chú của bạn trước khi chat, truyền đường dẫn thư mục ghi chú khi khởi động:
+
+```bash
+node server.js "/duong/dan/toi/secondbrain"
+```
+
+(hoặc dùng biến môi trường: `HERMES_BRAIN="/duong/dan/toi/secondbrain" node server.js`)
+
+- Server đọc mọi file `.md`, `.txt`, `.markdown`, `.org` trong thư mục (kể cả thư mục con), ưu tiên ghi chú sửa gần nhất
+- Giới hạn 4.000 ký tự/ghi chú và 12.000 ký tự tổng (model nhỏ chạy CPU sẽ chậm nếu prompt quá dài)
+- Thanh trạng thái trong app hiện `🧠 N ghi chú` khi nạp thành công
+- Dữ liệu chỉ nằm trong máy bạn — không gửi đi đâu (khi dùng Ollama local)
 
 ## Các cách kết nối khác
 
