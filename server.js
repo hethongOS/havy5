@@ -47,6 +47,32 @@ const SYSTEM_PROMPT =
   process.env.HERMES_SYSTEM_PROMPT ||
   "Bạn là Hermes, một trợ lý AI thân thiện và thông minh. Hãy trả lời bằng ngôn ngữ mà người dùng sử dụng (mặc định là tiếng Việt).";
 
+// Hai persona cho Phòng tranh luận — cùng chạy trên một model nhưng tính cách khác nhau
+const ARENA_RULES =
+  "Bạn đang ở trong một phòng chat nhóm cùng anh Thành (con người, người giao nhiệm vụ) " +
+  "và một AI khác. Hãy tranh luận thẳng thắn bằng tiếng Việt: nêu rõ chính kiến, phản biện " +
+  "trực tiếp ý kiến của AI kia (gọi thẳng tên), và khi cần thì đặt câu hỏi ngược lại. " +
+  "Luôn tôn trọng và làm theo yêu cầu mới nhất của anh Thành. Mỗi lượt nói TỐI ĐA 4 câu, " +
+  "xưng \"mình\". Chỉ viết nội dung lượt nói của chính bạn — không viết tên bạn ở đầu, " +
+  "không đóng vai người khác, không viết thay lượt của ai.";
+
+const PERSONAS = {
+  cursor: {
+    name: "Cursor",
+    prompt:
+      "Bạn là Cursor, một AI kỹ sư thực dụng: logic, hoài nghi, coi trọng số liệu, tính khả thi " +
+      "và rủi ro. Bạn hay chỉ ra điểm yếu trong lập luận của người khác. " +
+      ARENA_RULES,
+  },
+  hermes: {
+    name: "Hermes",
+    prompt:
+      "Bạn là Hermes, một AI uyên bác và lạc quan: giàu trí tưởng tượng, coi trọng ý tưởng lớn, " +
+      "trải nghiệm con người và khả năng sáng tạo. Bạn bảo vệ quan điểm của mình một cách khéo léo. " +
+      ARENA_RULES,
+  },
+};
+
 const MIME = {
   ".html": "text/html; charset=utf-8",
   ".css": "text/css; charset=utf-8",
@@ -122,26 +148,8 @@ async function streamDemoReply(res, lastUserMessage) {
   res.end();
 }
 
-async function handleChat(req, res) {
-  let payload;
-  try {
-    payload = JSON.parse(await readBody(req));
-  } catch {
-    return sendJSON(res, 400, { error: "JSON không hợp lệ" });
-  }
-  const messages = Array.isArray(payload.messages) ? payload.messages : [];
-  const valid = messages.every(
-    (m) => m && ["user", "assistant"].includes(m.role) && typeof m.content === "string"
-  );
-  if (!messages.length || !valid) {
-    return sendJSON(res, 400, { error: "Trường messages không hợp lệ" });
-  }
-
-  if (DEMO_MODE) {
-    const lastUser = [...messages].reverse().find((m) => m.role === "user");
-    return streamDemoReply(res, lastUser ? lastUser.content : "");
-  }
-
+// Gọi API kiểu OpenAI và chuyển tiếp kết quả streaming về client dưới dạng SSE
+async function proxyCompletion(res, messages) {
   let upstream;
   try {
     upstream = await fetch(`${BASE_URL}/chat/completions`, {
@@ -150,11 +158,7 @@ async function handleChat(req, res) {
         "Content-Type": "application/json",
         ...(API_KEY ? { Authorization: `Bearer ${API_KEY}` } : {}),
       },
-      body: JSON.stringify({
-        model: MODEL,
-        stream: true,
-        messages: [{ role: "system", content: SYSTEM_PROMPT }, ...messages],
-      }),
+      body: JSON.stringify({ model: MODEL, stream: true, messages }),
     });
   } catch (err) {
     return sendJSON(res, 502, { error: `Không kết nối được tới ${BASE_URL}: ${err.message}` });
@@ -196,6 +200,63 @@ async function handleChat(req, res) {
   res.end();
 }
 
+async function handleChat(req, res) {
+  let payload;
+  try {
+    payload = JSON.parse(await readBody(req));
+  } catch {
+    return sendJSON(res, 400, { error: "JSON không hợp lệ" });
+  }
+  const messages = Array.isArray(payload.messages) ? payload.messages : [];
+  const valid = messages.every(
+    (m) => m && ["user", "assistant"].includes(m.role) && typeof m.content === "string"
+  );
+  if (!messages.length || !valid) {
+    return sendJSON(res, 400, { error: "Trường messages không hợp lệ" });
+  }
+
+  if (DEMO_MODE) {
+    const lastUser = [...messages].reverse().find((m) => m.role === "user");
+    return streamDemoReply(res, lastUser ? lastUser.content : "");
+  }
+
+  return proxyCompletion(res, [{ role: "system", content: SYSTEM_PROMPT }, ...messages]);
+}
+
+// Một lượt phát biểu trong Phòng tranh luận: nhận toàn bộ hội thoại nhóm,
+// trả về lượt nói tiếp theo của persona được chỉ định (streaming)
+async function handleArenaTurn(req, res) {
+  let payload;
+  try {
+    payload = JSON.parse(await readBody(req));
+  } catch {
+    return sendJSON(res, 400, { error: "JSON không hợp lệ" });
+  }
+  const persona = PERSONAS[payload.speaker];
+  const transcript = Array.isArray(payload.transcript) ? payload.transcript : [];
+  const valid = transcript.every(
+    (t) => t && typeof t.name === "string" && typeof t.content === "string"
+  );
+  if (!persona || !transcript.length || !valid) {
+    return sendJSON(res, 400, { error: "Trường speaker hoặc transcript không hợp lệ" });
+  }
+
+  if (DEMO_MODE) {
+    return streamDemoReply(res, transcript[transcript.length - 1].content);
+  }
+
+  const log = transcript.map((t) => `${t.name}: ${t.content}`).join("\n\n");
+  return proxyCompletion(res, [
+    { role: "system", content: persona.prompt },
+    {
+      role: "user",
+      content:
+        `Cuộc trò chuyện trong phòng đến lúc này:\n\n${log}\n\n` +
+        `Bây giờ đến lượt bạn (${persona.name}). Viết đúng một lượt nói của bạn, không kèm tên ở đầu.`,
+    },
+  ]);
+}
+
 const server = http.createServer(async (req, res) => {
   const { pathname } = new URL(req.url, "http://localhost");
   if (req.method === "GET" && pathname === "/api/config") {
@@ -203,6 +264,9 @@ const server = http.createServer(async (req, res) => {
   }
   if (req.method === "POST" && pathname === "/api/chat") {
     return handleChat(req, res);
+  }
+  if (req.method === "POST" && pathname === "/api/arena/turn") {
+    return handleArenaTurn(req, res);
   }
   if (req.method === "GET" || req.method === "HEAD") {
     return serveStatic(req, res);

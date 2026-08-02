@@ -283,6 +283,62 @@ body {
   margin-top: 8px;
 }
 
+/* ---------- Phòng tranh luận ---------- */
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.nav-link {
+  text-decoration: none;
+  display: inline-block;
+}
+
+.participants {
+  display: inline-flex;
+  gap: 6px;
+}
+
+.badge {
+  font-size: 12px;
+  padding: 5px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+}
+
+.badge-user { border-color: var(--user-bubble); color: #8fb3ff; }
+.badge-cursor { border-color: #3dd6c3; color: #3dd6c3; }
+.badge-hermes { border-color: var(--accent); color: var(--accent); }
+
+.stop-btn {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.speaker-label {
+  font-size: 12px;
+  font-weight: 600;
+  margin-bottom: 5px;
+}
+
+.agent-cursor { border-left: 3px solid #3dd6c3; }
+.agent-cursor .speaker-label { color: #3dd6c3; }
+
+.agent-hermes { border-left: 3px solid var(--accent); }
+.agent-hermes .speaker-label { color: var(--accent); }
+
+.note {
+  align-self: center;
+  font-size: 12.5px;
+  color: var(--text-dim);
+  padding: 4px 12px;
+  animation: pop 0.18s ease;
+}
+
 /* ---------- Scrollbar ---------- */
 .messages::-webkit-scrollbar {
   width: 8px;

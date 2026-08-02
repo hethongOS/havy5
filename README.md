@@ -6,6 +6,7 @@
 - Phản hồi dạng streaming (chữ hiện ra dần như đang gõ)
 - Lưu lịch sử trò chuyện trong trình duyệt
 - Có **chế độ demo** để chạy thử ngay cả khi chưa có API key
+- **Phòng tranh luận** (`/arena.html`): bạn giao nhiệm vụ, hai AI persona (Cursor ⚙️ — kỹ sư thực dụng, và Hermes ⚡ — uyên bác lạc quan) tự tranh luận qua lại trước mắt bạn, bạn chen vào bất cứ lúc nào
 
 ## Chạy nhanh (có sẵn Ollama trên máy)
 
