@@ -4,20 +4,24 @@ Nguồn: báo cáo chỉ-đọc của agent local. Cloud agent **không** truy c
 
 ## Kết luận ngắn
 
-Phân loại gốc **đúng hướng và đủ thận trọng**. Đợt 1 chỉ nên dọn **cache / bộ cài VS Code cũ / diagnostics tạm** (~4–6 GB). Không xóa `state` backup hàng loạt hay kho model trước khi xác minh. Thiếu hạng mục quan trọng anh muốn: **skill rỗng/lỗi** và **dữ liệu tạo ẩu**.
+Phân loại gốc **đúng hướng về an toàn**, nhưng **chưa đủ mạnh** so với mục tiêu thật của anh: gom về **1 mô hình văn phòng số chuẩn**, cắt nhánh `so_1/2/3` và thí nghiệm mở rộng quá nhanh.
+
+Đợt lấy GB nhanh: **cache / VS Code installer** (~4–6 GB).  
+Đợt thống nhất mô hình: **so_*/lab/sandbox/tmp/state-backup thừa + skill stub** (nhiều GB hơn, cần OpenClaw tự đánh giá rồi duyệt).
+
+Chi tiết tư duy CANON: [04-CANONICAL-OFFICE.md](04-CANONICAL-OFFICE.md).
 
 | Hạng mục | Đáng xóa? | Ghi chú |
 |---|---|---|
-| `state`, `workspace` đang chạy, `apps`, `node-global`, `secrets`, `havy-memory`, `van-phong-so` | **KHÔNG** | Runtime thật |
-| `havy-router-v2-backup-20260719` | **KHÔNG** | Tên backup nhưng đang bị Node giữ |
-| `cache\npm`, `.cache` | **CÓ** (sau khi dừng) | Tái tạo được |
-| `vscode-stable-user-x64-*` cũ (~12 bộ) | **CÓ** (sau khi installer đóng) | ~2,2 GB; giữ bộ đang dùng |
-| `tmp` đang bị process giữ | **KHÔNG** | Giữ đến khi process thoát |
-| `sandbox`, `lab`, `_edge-eye-test` | **CÓ THỂ** sau xác minh | Quarantine trước, không hard-delete |
-| `workspace\tmp\*` pilot | **CÓ THỂ** nếu hết thí nghiệm | Quarantine |
-| 4–5 bản `state*` backup (~13 GB) | **CÓ THỂ** giữ 1, bỏ 4 | Rủi ro cao — quarantine ≥7 ngày |
-| `OPENCLAW\models` vs `OLLAMA_MODELS` | **CHƯA** | Xác minh env/process trước |
-| `workspace_so_1/2/3` | **CHƯA** | Có thể là workspace agent riêng |
+| `state`, `workspace` chính, `apps`, `node-global`, `secrets`, `havy-memory`, `van-phong-so` | **KHÔNG** | CANON / runtime |
+| `havy-router-v2-backup-20260719` | **KHÔNG** lúc đang chạy | Tên backup nhưng Node đang giữ |
+| `cache\npm`, `.cache` | **CÓ** | Tái tạo được |
+| `vscode-stable-user-x64-*` cũ (~12 bộ) | **CÓ** | ~2,2 GB |
+| `tmp` đang bị process giữ | **KHÔNG** | Đợi process thoát |
+| `sandbox`, `lab`, `_edge-eye-test`, `workspace\tmp\*` | **CÓ (quarantine)** | Ngoài CANON — thí nghiệm |
+| 4–5 bản `state*` backup (~13 GB) | **CÓ (giữ 1)** | Quarantine ≥7 ngày |
+| `OPENCLAW\models` vs `OLLAMA_MODELS` | **VERIFY → giữ 1** | Xác minh process |
+| `workspace_so_1/2/3` | **CÓ nếu rỗng thực chất** | Đúng hướng anh nói; xác nhận bằng `agents list` + nội dung rồi `agents delete` |
 
 ## Điểm đồng ý với báo cáo gốc
 
@@ -27,20 +31,22 @@ Phân loại gốc **đúng hướng và đủ thận trọng**. Đợt 1 chỉ 
 4. Nhiều bản `state*` gần nhau là ứng viên lớn nhất nhưng rủi ro nhất.
 5. Hai kho model chưa đủ bằng chứng để xóa.
 
-## Điểm cần siết lại
+## Điểm cần siết lại (theo tư duy thống nhất)
 
-1. **`workspace_so_*` không phải rác chỉ vì cùng dung lượng.** OpenClaw multi-agent thường có `workspace-<agentId>`. Phải đối chiếu `openclaw.json` → `agents.entries.*.workspace`.
-2. **`sandbox` / `lab` không tự động = rác.** Chỉ dọn nếu không còn tham chiếu config và không có tiến trình mở file.
-3. **Thiếu audit skill + nội dung ảo.** Đây mới là “rác không thực chất” anh nói: skill stub, memory dump, file agent tự sinh hàng loạt.
-4. **Không soft-move runtime.** Chỉ quarantine sang `O:\OPENCLAW\_quarantine\YYYYMMDD\` rồi xóa sau thời gian chờ.
+1. **`workspace_so_*` mặc định là ứng viên cắt** nếu chỉ có tên/không hoạt động — đúng với mục tiêu 1 office chuẩn. Vẫn phải chứng minh bằng `openclaw agents list` + nội dung workspace trước khi delete.
+2. **`sandbox` / `lab` / pilot = ngoài CANON** → quarantine, không giữ “phòng khi cần” lâu dài.
+3. **Skill + dữ liệu tạo ẩu** phải nằm trong đợt cắt, không chỉ cache.
+4. **Quarantine/Trash trước, hard-delete sau ≥7 ngày.** Dùng `openclaw agents delete --force` (đưa Trash) khi là agent.
 
-## Thứ tự an toàn
+## Thứ tự thống nhất
 
 ```text
-A. Dừng OpenClaw (gateway, 9Router, Ollama, MCP, web, agent)
-B. Đợt 1 — an toàn: npm cache, .cache, vscode installer cũ, diagnostics cũ
-C. Đợt 2 — quarantine: sandbox/lab/test/tmp pilot đã xác minh chết
-D. Đợt 3 — giữ 1 state backup tốt nhất; quarantine 4 bản còn lại
-E. Đợt 4 — xác minh Ollama path; chỉ rồi mới đụng kho model trùng
-F. Song song — audit skill rỗng + dữ liệu tạo ẩu (không phụ thuộc dung lượng lớn)
+P0. Chốt CANON (1 office + 1 workspace + 1 model store)
+P1. Cache/installer — lấy GB nhanh
+P2. OpenClaw tự đánh giá agents/skills → delete agent rỗng (so_*)
+P3. Quarantine lab/sandbox/tmp/state-backup thừa
+P4. Disable/quarantine skill stub
+P5. Sau ≥7 ngày: hard-delete quarantine
 ```
+
+Prompt điều khiển OpenClaw tự đánh giá: [05-OPENCLAW-SELF-EVAL-DIRECTIVE.md](05-OPENCLAW-SELF-EVAL-DIRECTIVE.md).
