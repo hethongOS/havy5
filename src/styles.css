@@ -8,3 +8,15 @@
 .direct-contact{display:flex;flex-wrap:wrap;gap:9px;margin:19px 0}.direct-contact a{display:inline-flex;align-items:center;gap:8px;border:1px solid #cddbd0;padding:10px 12px;color:var(--green);font-weight:800;font-size:12px}.direct-contact a:hover{background:#e7efe7}.direct-contact .i{width:16px;height:16px}.footer-phone{display:inline-flex;gap:8px;align-items:center;color:#e8bb96;font-weight:800;font-size:13px;margin-top:5px}.footer-phone .i{width:16px}
 
 .quote-output{padding:22px 0 0;border-top:1px solid #dce4da;margin-top:22px}.quote-output[hidden]{display:none}.quote-output label{font-size:13px}.quote-output textarea{min-height:190px!important;font-size:12px;line-height:1.7;white-space:pre-wrap}.quote-output-actions{display:flex;flex-wrap:wrap;gap:9px}.quote-output-actions .btn{font-size:12px;padding:13px;min-height:48px}.quote-output small{display:block;color:#748478;margin-top:15px;font-size:11px}.copy-status{color:var(--green);font-weight:700;font-size:12px;margin:12px 0 0}
+
+/* Release-hardening: privacy page and conversion handoff */
+.handoff-summary{padding:15px 17px;margin:0 0 18px;background:#e7f1e8;border-left:3px solid #317057;color:#194833;font-size:13px;line-height:1.65;font-weight:700}
+.handoff-summary[hidden]{display:none}
+.privacy-inline{font-size:12px;color:#526b5d;margin:6px 0 20px}
+.privacy-inline a{font-weight:800;text-decoration:underline;text-underline-offset:3px}
+.privacy-content{max-width:850px}
+.privacy-content h2{font-size:clamp(24px,3.5vw,37px);margin:38px 0 12px}
+.privacy-content h2:first-child{margin-top:0}
+.privacy-content p{color:#465b4e;max-width:740px;line-height:1.9}
+.privacy-content strong{color:var(--deep)}
+@media (max-width:600px){.privacy-content{padding-bottom:15px}}

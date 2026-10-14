@@ -34,3 +34,13 @@ Mở http://localhost:4173. Không cần npm install vì không có dependency b
 ## Quy trình lên production
 
 Chạy KCS (lints, unit tests, responsive, keyboard, form integration, factual claims, legal/privacy), xác minh số liên hệ, cân nhắc liên kết CRM thật, đo analytics không gửi PII, thiết lập SEO và domain, sau đó mới Founder Gate. LAB đánh dấu noindex và robots disallow theo chủ đích.
+
+## Nâng cấp V4 — luồng tư vấn không mất ngữ cảnh
+
+- Handoff từ công cụ chọn ván sang yêu cầu báo giá: 4 lựa chọn cố định được giữ trong query string; không đặt PII trong URL, chỉ nhận giá trị whitelist.
+- Trang báo giá điền trước hạng mục, nhóm vật liệu và nội dung đã khảo sát để khách đỡ nhập lại; người dùng có thể sửa toàn bộ mô tả trước khi gửi.
+- Thêm `/chinh-sach-du-lieu/` để giải thích rõ thông tin trong trình duyệt, liên kết ngoài và giới hạn LAB.
+- SEO meta riêng cho 9 route, Open Graph và Twitter Card; LAB vẫn noindex/robots disallow tới Founder Gate.
+- Kiểm thử bảo mật dữ liệu đầu vào và 108 tổ hợp chuyển tiếp, chạy bằng `npm test`.
+
+**Không có Gemini key, CRM hoặc tính năng gửi tự động trong code. Không công bố giá/tồn kho/định mức chịu tải chưa có datasheet.**

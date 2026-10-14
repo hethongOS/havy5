@@ -1,3 +1,4 @@
+import { createAdvisorHandoff, readAdvisorHandoff, formatAdvisorHandoff } from './handoff.mjs';
 import { advise } from './advisor.mjs';
 
 // Hooks đo lường nội bộ: chỉ gửi sự kiện trong trình duyệt, không lưu PII hay gửi máy chủ.
@@ -64,8 +65,9 @@ function initWizard() {
       let result;
       try { result = advise(state); } catch { step = 0; render(); return; }
       const slug = encodeURIComponent(result.slug);
+      const handoffUrl = createAdvisorHandoff(state);
       emitEvent('advisor_complete', { material: result.slug });
-      body.innerHTML = `<div class="wizard-result-tag">✓ ${escapeHtml(result.confidence)}</div><h2 style="margin-top:23px">Phương án đáng cân nhắc</h2><div class="result-material">${escapeHtml(result.material)}</div><p class="result-copy">${escapeHtml(result.description)}</p><ul class="result-reasons">${result.reasons.map(x=>`<li>${escapeHtml(x)}</li>`).join('')}</ul><div class="result-caveat"><strong>Cần lưu ý:</strong> ${escapeHtml(result.caveat)}</div><p class="wizard-prompt">Đây là hướng tham khảo, không phải kết luận kỹ thuật hay báo giá.</p><div class="result-actions"><a class="btn btn-primary" href="/vat-lieu/${slug}/">Xem nhóm vật liệu →</a><a class="btn btn-ghost" href="/bao-gia/?vat-lieu=${slug}">Hỏi Hà Vy về hạng mục →</a></div><button type="button" class="wizard-prev" id="wizardReset">↻ Trả lời lại từ đầu</button>`;
+      body.innerHTML = `<div class="wizard-result-tag">✓ ${escapeHtml(result.confidence)}</div><h2 style="margin-top:23px">Phương án đáng cân nhắc</h2><div class="result-material">${escapeHtml(result.material)}</div><p class="result-copy">${escapeHtml(result.description)}</p><ul class="result-reasons">${result.reasons.map(x=>`<li>${escapeHtml(x)}</li>`).join('')}</ul><div class="result-caveat"><strong>Cần lưu ý:</strong> ${escapeHtml(result.caveat)}</div><p class="wizard-prompt">Đây là hướng tham khảo, không phải kết luận kỹ thuật hay báo giá.</p><div class="result-actions"><a class="btn btn-primary" href="/vat-lieu/${slug}/">Xem nhóm vật liệu →</a><a class="btn btn-ghost" href="${escapeHtml(handoffUrl)}">Hỏi Hà Vy về hạng mục →</a></div><button type="button" class="wizard-prev" id="wizardReset">↻ Trả lời lại từ đầu</button>`;
       body.querySelector('#wizardReset').addEventListener('click', () => { step = 0; Object.keys(state).forEach(k=>delete state[k]); render(); });
       return;
     }
@@ -88,6 +90,19 @@ function initQuote() {
   const params = new URLSearchParams(location.search);
   const param = params.get('vat-lieu');
   if (['mdf','plywood','cemboard'].includes(param)) form.elements.material.value = param;
+  const handoff = readAdvisorHandoff(params);
+  if (handoff) {
+    const summary = document.querySelector('#handoffSummary');
+    form.elements.project.value = handoff.input.use;
+    form.elements.material.value = handoff.material;
+    const details = formatAdvisorHandoff(handoff.input);
+    form.elements.description.value = `Tôi đã trả lời bộ chọn vật liệu:\n${details}\nXin tư vấn thêm về chủng loại, quy cách và giá phù hợp.`;
+    if (summary) {
+      summary.hidden = false;
+      summary.textContent = '✓ Đã giữ lại 4 câu trả lời từ công cụ chọn vật liệu. Anh/chị có thể sửa mô tả trước khi gửi qua Zalo.';
+    }
+    emitEvent('advisor_handoff_loaded', { material: handoff.material });
+  }
   form.addEventListener('submit', e => {
     e.preventDefault();
     const status = document.querySelector('#formMessage');
@@ -97,6 +112,7 @@ function initQuote() {
     if (!project || desc.length < 10 || !consent) {
       status.className='form-message error';
       status.textContent='Vui lòng chọn hạng mục, mô tả ít nhất 10 ký tự và xác nhận đây là bản LAB.';
+      (!project ? form.elements.project : desc.length < 10 ? form.elements.description : form.elements.consent).focus();
       return;
     }
     const labels = { 'noi-that':'Tủ / nội thất','tu-ke':'Kệ / tủ bếp','vach-tran':'Vách / trần','san-ngoai':'Sàn / ngoài trời','khac':'Khác' };
