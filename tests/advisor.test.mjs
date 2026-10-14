@@ -22,3 +22,5 @@ test('all 108 combinations return supported category and caveat',()=>{
   }
   assert.equal(count,108);
 });
+
+test('direct contact is available without CRM or Gemini API',()=>{assert.match(render('/bao-gia/'),/tel:0983062897/);assert.match(render('/bao-gia/'),/zalo\.me\/0983062897/);});
