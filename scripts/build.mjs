@@ -10,6 +10,7 @@ for (const path of routes) {
   await writeFile(join(dir, 'index.html'), render(path), 'utf8');
 }
 await copyFile(new URL('../src/styles.css', import.meta.url), new URL('../dist/styles.css', import.meta.url));
+await copyFile(new URL('../src/home14.css', import.meta.url), new URL('../dist/home14.css', import.meta.url));
 await copyFile(new URL('../src/main.js', import.meta.url), new URL('../dist/main.js', import.meta.url));
 await copyFile(new URL('../src/advisor.mjs', import.meta.url), new URL('../dist/advisor.mjs', import.meta.url));
 await copyFile(new URL('../src/handoff.mjs', import.meta.url), new URL('../dist/handoff.mjs', import.meta.url));

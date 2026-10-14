@@ -37,9 +37,9 @@ test('all 108 advice combinations safely round-trip',()=>{
   assert.equal(n,108);
 });
 test('every page has distinct metadata, social card and noindex',()=>{
-  assert.equal(routes.length,9);
-  assert.equal(Object.keys(pageMeta).length,9);
-  assert.equal(new Set(Object.values(pageMeta).map(x=>x.description)).size,9);
+  assert.equal(routes.length,10);
+  assert.equal(Object.keys(pageMeta).length,10);
+  assert.equal(new Set(Object.values(pageMeta).map(x=>x.description)).size,10);
   for(const p of routes){
     const html=render(p);
     assert.match(html,/<meta name="robots" content="noindex,nofollow"/);
