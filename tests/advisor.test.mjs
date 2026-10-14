@@ -4,7 +4,7 @@ import { advise, answers } from '../src/advisor.mjs';
 import { render, routes } from '../src/site.mjs';
 const base = { use:'noi-that',moisture:'kho',priority:'tham-my',budget:'can-bang' };
 test('every route renders a Vietnamese page and noindex on LAB',()=>{
-  assert.equal(routes.length,9);
+  assert.equal(routes.length,10);
   for(const path of routes){const html=render(path);assert.match(html, /lang="vi"/);assert.match(html, /noindex,nofollow/);assert.match(html,/main id="main"/);}
 });
 test('dry furniture defaults to appropriate MDF comparison',()=>{assert.equal(advise(base).slug,'mdf');});

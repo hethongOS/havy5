@@ -90,6 +90,20 @@ function initQuote() {
   const params = new URLSearchParams(location.search);
   const param = params.get('vat-lieu');
   if (['mdf','plywood','cemboard'].includes(param)) form.elements.material.value = param;
+  // Predefined, non-personal query parameters from homepage CTAs.
+  const purposes = {
+    'kiem-gia': ['khac', 'Tôi đã có quy cách, cần Hà Vy kiểm giá và tình trạng hàng. Mã hàng / độ dày / kích thước / số lượng / địa điểm nhận: '],
+    'du-toan': ['khac', 'Tôi cần chuẩn bị dự toán cho công trình. Hạng mục / kích thước / chủng loại / tiến độ: '],
+    'san-gac': ['san-ngoai', 'Tôi muốn hỏi vật liệu cho sàn gác. Cần xem tải trọng thiết kế, hệ khung, nhịp, liên kết và tài liệu của đúng mã tấm. Thông tin đang có: '],
+    'ngoai-troi': ['san-ngoai', 'Tôi muốn hỏi vật liệu sử dụng ngoài trời. Vị trí, mức tiếp xúc nước/nắng, điều kiện thi công và thông tin đang có: '],
+    'melamine': ['noi-that', 'Tôi muốn hỏi về ván có bề mặt phủ Melamine. Loại cốt / mã màu / độ dày / số lượng / nơi sử dụng: ']
+  };
+  const purpose = purposes[params.get('muc-dich')];
+  if (purpose) {
+    form.elements.project.value = purpose[0];
+    form.elements.description.value = purpose[1];
+    emitEvent('quote_purpose_prefilled', { purpose: params.get('muc-dich') });
+  }
   const handoff = readAdvisorHandoff(params);
   if (handoff) {
     const summary = document.querySelector('#handoffSummary');

@@ -40,7 +40,19 @@ Chạy KCS (lints, unit tests, responsive, keyboard, form integration, factual c
 - Handoff từ công cụ chọn ván sang yêu cầu báo giá: 4 lựa chọn cố định được giữ trong query string; không đặt PII trong URL, chỉ nhận giá trị whitelist.
 - Trang báo giá điền trước hạng mục, nhóm vật liệu và nội dung đã khảo sát để khách đỡ nhập lại; người dùng có thể sửa toàn bộ mô tả trước khi gửi.
 - Thêm `/chinh-sach-du-lieu/` để giải thích rõ thông tin trong trình duyệt, liên kết ngoài và giới hạn LAB.
-- SEO meta riêng cho 9 route, Open Graph và Twitter Card; LAB vẫn noindex/robots disallow tới Founder Gate.
+- SEO meta riêng cho 10 route, Open Graph và Twitter Card; LAB vẫn noindex/robots disallow tới Founder Gate.
 - Kiểm thử bảo mật dữ liệu đầu vào và 108 tổ hợp chuyển tiếp, chạy bằng `npm test`.
 
 **Không có Gemini key, CRM hoặc tính năng gửi tự động trong code. Không công bố giá/tồn kho/định mức chịu tải chưa có datasheet.**
+
+
+## Nâng cấp V5 — Đề xuất 14 section Founder
+
+- Trang chủ triển khai đủ 14 khu vực theo bản đề xuất ngày 14/10/2026; nguồn gốc văn bản lưu `docs/FOUNDER_14_SECTION_PROPOSAL_20261014.md`.
+- Hero tách 2 nhu cầu chuyển đổi; ba đường vào (chưa biết ván, đã có quy cách, đang dự toán).
+- Cẩm nang `/cam-nang/` giải thích chống ẩm, so quy cách, kết cấu và chuẩn bị thông tin mua hàng. Nội dung là kiến thức tổng hợp, không phải chứng thực giao dịch thật.
+- `/vat-lieu/#phu-melamine` phân biệt Melamine là lớp phủ.
+- Bổ sung tham số `muc-dich` từ CTA và nội dung soạn tin nhắn tương ứng (whitelist, không PII trong URL).
+- CSS riêng `src/home14.css`; giữ nguyên nguồn V4 ở các module tư vấn, kiểm thử chuyển tiếp 108 tổ hợp.
+- `noindex` giữ nguyên; chưa có máy tính định mức cắt tấm, ảnh kho gốc hay CRM gửi tự động.
+- Xem hồ sơ mapping và KCS ở `docs/FOUNDER_14_SECTION_IMPLEMENTATION_V5.md`, `docs/KCS_V5_14_SECTION_20261014.md`.
