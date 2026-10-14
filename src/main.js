@@ -99,9 +99,37 @@ function initQuote() {
       status.textContent='Vui lòng chọn hạng mục, mô tả ít nhất 10 ký tự và xác nhận đây là bản LAB.';
       return;
     }
-    emitEvent('quote_lab_validated');
+    const labels = { 'noi-that':'Tủ / nội thất','tu-ke':'Kệ / tủ bếp','vach-tran':'Vách / trần','san-ngoai':'Sàn / ngoài trời','khac':'Khác' };
+    const materials = { mdf:'MDF', plywood:'Plywood', cemboard:'Cemboard' };
+    const message = [
+      'Chào Kho Ván Hà Vy, tôi muốn được tư vấn vật liệu:',
+      `- Hạng mục: ${labels[project] || 'Chưa rõ'}`,
+      `- Vật liệu đang cân nhắc: ${materials[form.elements.material.value] || 'Cần tư vấn'}`,
+      `- Nhu cầu: ${desc}`,
+      'Xin Hà Vy tư vấn phương án phù hợp và thông tin cần bổ sung để nhận báo giá.'
+    ].join('\n');
+    const output = document.querySelector('#quoteOutput');
+    const field = document.querySelector('#generatedMessage');
+    field.value = message;
+    output.hidden = false;
+    emitEvent('quote_message_prepared');
     status.className='form-message ok';
-    status.textContent='✓ Nội dung thử nghiệm hợp lệ. Chưa gửi yêu cầu đến Hà Vy và không lưu dữ liệu lên máy chủ.';
+    status.textContent='✓ Đã soạn xong. Vui lòng sao chép, mở Zalo và tự bấm gửi.';
+    document.querySelector('#copyStatus').textContent='';
+    output.scrollIntoView({ behavior:'smooth', block:'nearest' });
+  });
+  document.querySelector('#copyMessage')?.addEventListener('click', async () => {
+    const field = document.querySelector('#generatedMessage');
+    const note = document.querySelector('#copyStatus');
+    try {
+      if (!navigator.clipboard?.writeText) throw new Error('clipboard unavailable');
+      await navigator.clipboard.writeText(field.value);
+      note.textContent = '✓ Đã sao chép. Hãy mở Zalo và dán tin nhắn.';
+      emitEvent('quote_message_copied');
+    } catch {
+      field.focus();field.select();
+      note.textContent='Trình duyệt không cho sao chép tự động. Nội dung đã được chọn; hãy sao chép thủ công rồi dán vào Zalo.';
+    }
   });
 }
 initTracking();initNav();initFilters();initWizard();initQuote();
