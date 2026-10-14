@@ -49,7 +49,8 @@ jobs:
         run: |
           set -euo pipefail
           export PATH="$HOME/.local/bin:$PATH"
-          { cat docs/ANTIGRAVITY_WORK_ORDER.md; printf '\nCURRENT PHASE: %s\n' "$PHASE_INPUT"; } > "$RUNNER_TEMP/order.txt"
+          PHASE="${PHASE_INPUT##* }"
+          { cat docs/ANTIGRAVITY_WORK_ORDER.md; printf '\nCURRENT PHASE: %s\n' "$PHASE"; } > "$RUNNER_TEMP/order.txt"
           agy -p "$(cat "$RUNNER_TEMP/order.txt")" --output-format stream-json --print-timeout 12m | tee "$RUNNER_TEMP/events.ndjson"
           jq -e -s '([.[] | select(.event=="result") | .result.status] | last) == "SUCCESS"' "$RUNNER_TEMP/events.ndjson"
       - name: Validate build and tests
