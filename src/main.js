@@ -1,5 +1,17 @@
 import { advise } from './advisor.mjs';
 
+// Hooks đo lường nội bộ: chỉ gửi sự kiện trong trình duyệt, không lưu PII hay gửi máy chủ.
+function emitEvent(name, detail = {}) {
+  window.dispatchEvent(new CustomEvent('havy:analytics', { detail: { name, page: location.pathname, ...detail } }));
+}
+function initTracking() {
+  emitEvent('page_view');
+  document.addEventListener('click', event => {
+    const tracked = event.target.closest('[data-track]');
+    if (tracked) emitEvent(tracked.dataset.track);
+  });
+}
+
 function initNav() {
   const toggle = document.querySelector('#navToggle');
   const nav = document.querySelector('#mobileNav');
@@ -21,6 +33,7 @@ function initFilters() {
     const btn = e.target.closest('[data-filter]');
     if (!btn) return;
     const value = btn.dataset.filter;
+    emitEvent('catalogue_filter', { filter: value });
     group.querySelectorAll('[data-filter]').forEach(node => {
       node.classList.toggle('active', node === btn);
       node.setAttribute('aria-pressed', String(node === btn));
@@ -51,6 +64,7 @@ function initWizard() {
       let result;
       try { result = advise(state); } catch { step = 0; render(); return; }
       const slug = encodeURIComponent(result.slug);
+      emitEvent('advisor_complete', { material: result.slug });
       body.innerHTML = `<div class="wizard-result-tag">✓ ${escapeHtml(result.confidence)}</div><h2 style="margin-top:23px">Phương án đáng cân nhắc</h2><div class="result-material">${escapeHtml(result.material)}</div><p class="result-copy">${escapeHtml(result.description)}</p><ul class="result-reasons">${result.reasons.map(x=>`<li>${escapeHtml(x)}</li>`).join('')}</ul><div class="result-caveat"><strong>Cần lưu ý:</strong> ${escapeHtml(result.caveat)}</div><p class="wizard-prompt">Đây là hướng tham khảo, không phải kết luận kỹ thuật hay báo giá.</p><div class="result-actions"><a class="btn btn-primary" href="/vat-lieu/${slug}/">Xem nhóm vật liệu →</a><a class="btn btn-ghost" href="/bao-gia/?vat-lieu=${slug}">Hỏi Hà Vy về hạng mục →</a></div><button type="button" class="wizard-prev" id="wizardReset">↻ Trả lời lại từ đầu</button>`;
       body.querySelector('#wizardReset').addEventListener('click', () => { step = 0; Object.keys(state).forEach(k=>delete state[k]); render(); });
       return;
@@ -59,6 +73,7 @@ function initWizard() {
     body.innerHTML = `<h2 id="question-title" tabindex="-1">${escapeHtml(question.title)}</h2><p class="wizard-prompt">${escapeHtml(question.hint)}</p><div class="choice-list" role="group" aria-labelledby="question-title">${question.choices.map(([value,label])=>`<button type="button" class="choice" data-value="${value}" aria-pressed="${String(state[question.key]===value)}"><span class="choice-indicator" aria-hidden="true"></span>${escapeHtml(label)}</button>`).join('')}</div><div class="wizard-actions"><button class="wizard-prev" id="wizardPrev" type="button" ${step===0?'disabled':''}>← Quay lại</button><button class="btn btn-primary wizard-next" id="wizardNext" type="button" ${!state[question.key]?'disabled':''}>${step===3?'Xem kết quả':'Tiếp tục →'}</button></div>`;
     body.querySelectorAll('.choice').forEach(btn=>btn.addEventListener('click',()=>{
       state[question.key] = btn.dataset.value;
+      emitEvent('advisor_answer', { question: question.key });
       body.querySelectorAll('.choice').forEach(b=>b.setAttribute('aria-pressed',String(b===btn)));
       body.querySelector('#wizardNext').disabled=false;
     }));
@@ -84,8 +99,9 @@ function initQuote() {
       status.textContent='Vui lòng chọn hạng mục, mô tả ít nhất 10 ký tự và xác nhận đây là bản LAB.';
       return;
     }
+    emitEvent('quote_lab_validated');
     status.className='form-message ok';
     status.textContent='✓ Nội dung thử nghiệm hợp lệ. Chưa gửi yêu cầu đến Hà Vy và không lưu dữ liệu lên máy chủ.';
   });
 }
-initNav();initFilters();initWizard();initQuote();
+initTracking();initNav();initFilters();initWizard();initQuote();
