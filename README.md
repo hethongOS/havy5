@@ -19,7 +19,7 @@ Mở http://localhost:4173. Không cần npm install vì không có dependency b
 - `/chon-vat-lieu/`: khảo sát 4 câu hỏi, kết quả theo quy tắc, cảnh báo kỹ thuật.
 - `/vat-lieu/`: danh mục và bộ lọc MDF/Plywood/Cemboard.
 - `/vat-lieu/mdf/`, `/vat-lieu/plywood/`, `/vat-lieu/cemboard/`: trang công năng và giới hạn từng nhóm.
-- `/bao-gia/`: biểu mẫu mô phỏng **không thu hay gửi dữ liệu thật**; cần CRM/backend trước khi đưa production.
+- `/bao-gia/`: soạn nội dung hỏi giá trong trình duyệt, sao chép rồi mở Zalo Hà Vy để khách **tự bấm gửi**; không có backend/CRM và không tự thu thập PII. Cần xác minh số Zalo trước khi production.
 - `/ve-ha-vy/`: thông điệp và địa điểm Hà Vy.
 
 ## Nguồn dữ liệu, điểm chưa xác minh
@@ -33,4 +33,4 @@ Mở http://localhost:4173. Không cần npm install vì không có dependency b
 
 ## Quy trình lên production
 
-Chạy KCS (lints, unit tests, responsive, keyboard, form integration, factual claims, legal/privacy), liên kết CRM thật, đo analytics không gửi PII, thiết lập SEO và domain, sau đó mới Founder Gate. LAB đánh dấu noindex và robots disallow theo chủ đích.
+Chạy KCS (lints, unit tests, responsive, keyboard, form integration, factual claims, legal/privacy), xác minh số liên hệ, cân nhắc liên kết CRM thật, đo analytics không gửi PII, thiết lập SEO và domain, sau đó mới Founder Gate. LAB đánh dấu noindex và robots disallow theo chủ đích.

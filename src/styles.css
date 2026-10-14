@@ -6,3 +6,5 @@
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important;animation-duration:.01ms!important;transition-duration:.01ms!important}}
 
 .direct-contact{display:flex;flex-wrap:wrap;gap:9px;margin:19px 0}.direct-contact a{display:inline-flex;align-items:center;gap:8px;border:1px solid #cddbd0;padding:10px 12px;color:var(--green);font-weight:800;font-size:12px}.direct-contact a:hover{background:#e7efe7}.direct-contact .i{width:16px;height:16px}.footer-phone{display:inline-flex;gap:8px;align-items:center;color:#e8bb96;font-weight:800;font-size:13px;margin-top:5px}.footer-phone .i{width:16px}
+
+.quote-output{padding:22px 0 0;border-top:1px solid #dce4da;margin-top:22px}.quote-output[hidden]{display:none}.quote-output label{font-size:13px}.quote-output textarea{min-height:190px!important;font-size:12px;line-height:1.7;white-space:pre-wrap}.quote-output-actions{display:flex;flex-wrap:wrap;gap:9px}.quote-output-actions .btn{font-size:12px;padding:13px;min-height:48px}.quote-output small{display:block;color:#748478;margin-top:15px;font-size:11px}.copy-status{color:var(--green);font-weight:700;font-size:12px;margin:12px 0 0}

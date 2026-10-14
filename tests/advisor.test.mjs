@@ -14,7 +14,7 @@ test('structural / flooring use always alerts structural verification',()=>{cons
 test('durability in dry area can prefer plywood',()=>{assert.equal(advise({...base,priority:'do-ben'}).slug,'plywood');});
 test('invalid answer input rejected',()=>{assert.throws(()=>advise({...base,moisture:'INVALID'}),TypeError);assert.throws(()=>advise({}),TypeError);});
 test('legacy wrong address not present',()=>{for(const path of routes){assert.doesNotMatch(render(path),/52 Tăng Bạt Hổ/);}});
-test('site never advertises false CRM submissions',()=>{assert.match(render('/bao-gia/'),/Chưa gửi thông tin/);});
+test('site never advertises false CRM submissions',()=>{assert.match(render('/bao-gia/'),/Chưa gửi tự động/);});
 test('all 108 combinations return supported category and caveat',()=>{
   let count=0;
   for(const use of answers.use) for(const moisture of answers.moisture) for(const priority of answers.priority) for(const budget of answers.budget){
@@ -24,3 +24,5 @@ test('all 108 combinations return supported category and caveat',()=>{
 });
 
 test('direct contact is available without CRM or Gemini API',()=>{assert.match(render('/bao-gia/'),/tel:0983062897/);assert.match(render('/bao-gia/'),/zalo\.me\/0983062897/);});
+
+test('quote can be composed locally then sent by user on Zalo',()=>{const html=render('/bao-gia/');assert.match(html,/id="quoteOutput" hidden/);assert.match(html,/Sao chép nội dung/);assert.match(html,/tự bấm gửi|tự gửi/);});
