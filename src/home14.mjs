@@ -62,7 +62,7 @@ export function renderHome14({ header, footer, button, eyebrow, materialCard, pr
   <section id="section-04-danh-muc" class="section products-section"><div class="wrap">${sectionHead('04','DANH MỤC VÁN CÔNG NGHIỆP','Tìm đúng loại ván. So đúng quy cách.','Giá mỗi tấm chỉ có ý nghĩa khi so cùng cốt, bề mặt, độ dày và điều kiện sử dụng.')}
     <div class="product-grid">${products.map(materialCard).join('')}</div>
     <div class="hv5-melamine"><div><h3>Melamine là bề mặt phủ, không phải cốt ván.</h3><p>Chọn màu và bề mặt cùng cốt ván phù hợp. Lớp phủ đẹp không thay thế việc chọn đúng cốt.</p></div><a href="/vat-lieu/#phu-melamine" class="hv5-link">Hiểu về bề mặt Melamine →</a></div>
-    <a class="hv5-link hv5-link-more" href="/vat-lieu/">Xem các nhóm vật liệu →</a>
+    <a class="hv5-link hv5-link-more" href="/san-pham/">Xem 18 dòng sản phẩm và mã hàng →</a>
   </div></section>
   <!-- 05 Kiến thức -->
   <section id="section-05-kien-thuc" class="section hv5-block hv5-tint"><div class="wrap">${sectionHead('05','BA ĐIỀU NÊN BIẾT','Có những khác biệt nhỏ khi mua, nhưng rất lớn khi sử dụng.')}

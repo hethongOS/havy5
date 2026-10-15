@@ -117,6 +117,12 @@ function initQuote() {
     }
     emitEvent('advisor_handoff_loaded', { material: handoff.material });
   }
+  const importedSku = params.get('ma-hang');
+  if (importedSku && /^[\p{L}\p{N}_.()\-]{2,48}$/u.test(importedSku)) {
+    const skuInfo = 'Mã hàng từ danh mục lưu trữ: ' + importedSku + '. Cần Hà Vy đối chiếu mã đang bán, quy cách, giá và tồn kho hiện hành.';
+    form.elements.description.value = skuInfo + '\n' + form.elements.description.value;
+    if (!form.elements.project.value) form.elements.project.value = 'khac';
+  }
   form.addEventListener('submit', e => {
     e.preventDefault();
     const status = document.querySelector('#formMessage');

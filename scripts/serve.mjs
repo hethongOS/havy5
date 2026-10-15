@@ -1,8 +1,9 @@
 import http from 'node:http';
 import { readFile } from 'node:fs/promises';
 import { resolve, sep, extname, join } from 'node:path';
-const root = resolve('dist');
-const mimes = {'.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8','.mjs':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.svg':'image/svg+xml','.txt':'text/plain; charset=utf-8'};
+import { fileURLToPath } from 'node:url';
+const root = resolve(fileURLToPath(new URL('../dist/', import.meta.url)));
+const mimes = {'.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8','.mjs':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.webp':'image/webp','.jpg':'image/jpeg','.png':'image/png','.svg':'image/svg+xml','.txt':'text/plain; charset=utf-8'};
 const port = Number(process.env.PORT || 4173);
 http.createServer(async(req,res)=>{
   try {

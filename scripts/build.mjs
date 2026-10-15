@@ -1,16 +1,20 @@
-import { rm, mkdir, writeFile, copyFile } from 'node:fs/promises';
+import { rm, mkdir, writeFile, copyFile, cp } from 'node:fs/promises';
 import { join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { render, routes } from '../src/site.mjs';
 const out = new URL('../dist/', import.meta.url);
 await rm(out, { force: true, recursive: true });
 await mkdir(out, { recursive: true });
 for (const path of routes) {
-  const dir = join(out.pathname, path);
+  const dir = join(fileURLToPath(out), path);
   await mkdir(dir, { recursive: true });
   await writeFile(join(dir, 'index.html'), render(path), 'utf8');
 }
 await copyFile(new URL('../src/styles.css', import.meta.url), new URL('../dist/styles.css', import.meta.url));
 await copyFile(new URL('../src/home14.css', import.meta.url), new URL('../dist/home14.css', import.meta.url));
+await copyFile(new URL('../src/catalog.css', import.meta.url), new URL('../dist/catalog.css', import.meta.url));
+await copyFile(new URL('../src/catalog-client.js', import.meta.url), new URL('../dist/catalog-client.js', import.meta.url));
+await cp(new URL('../public/catalog-assets/', import.meta.url), new URL('../dist/catalog-assets/', import.meta.url), { recursive:true });
 await copyFile(new URL('../src/main.js', import.meta.url), new URL('../dist/main.js', import.meta.url));
 await copyFile(new URL('../src/advisor.mjs', import.meta.url), new URL('../dist/advisor.mjs', import.meta.url));
 await copyFile(new URL('../src/handoff.mjs', import.meta.url), new URL('../dist/handoff.mjs', import.meta.url));

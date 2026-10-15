@@ -1,3 +1,4 @@
+import { getCatalogMeta } from './catalog.mjs';
 export const pageMeta = Object.freeze({
   '/': { title:'Chọn đúng ván cho đúng việc', description:'Khám phá cách chọn MDF, Plywood, Cemboard theo hạng mục, môi trường sử dụng và ngân sách tại Kho Ván Hà Vy, Quy Nhơn.' },
   '/chon-vat-lieu/': { title:'Chọn vật liệu qua 4 câu hỏi', description:'Trả lời 4 câu hỏi về hạng mục, độ ẩm, ưu tiên và ngân sách để có gợi ý ban đầu cùng những cảnh báo cần kiểm tra.' },
@@ -15,7 +16,7 @@ export function escapeAttribute(value) {
   return String(value).replace(/[&<>"']/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]));
 }
 export function renderMeta(path) {
-  const data = pageMeta[path] || { title:'Không tìm thấy trang', description:'Nội dung được yêu cầu không tồn tại.' };
+  const data = pageMeta[path] || getCatalogMeta(path) || { title:'Không tìm thấy trang', description:'Nội dung được yêu cầu không tồn tại.' };
   const title = escapeAttribute(`${data.title} | Kho Ván Hà Vy`);
   const desc = escapeAttribute(data.description);
   // LAB luôn noindex; tuyệt đối không đặt canonical production trước khi duyệt hostname.

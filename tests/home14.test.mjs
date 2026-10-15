@@ -23,7 +23,7 @@ test('customer journeys have functional route destinations and honest disclaimer
   const routesSet=new Set(routes);
   for(const match of home.matchAll(/href="(\/[^"]+)"/g)) {
     const target = match[1].split(/[?#]/)[0];
-    if (['/favicon.svg','/styles.css','/home14.css'].includes(target)) continue;
+    if (['/favicon.svg','/styles.css','/home14.css','/catalog.css'].includes(target)) continue;
     assert.ok(routesSet.has(target), `Broken route: ${target}`);
   }
   assert.match(home,/chưa có tính năng tự tính số tấm/);
