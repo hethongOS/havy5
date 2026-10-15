@@ -1,3 +1,5 @@
+import {getCatalogMeta} from '../src/catalog.mjs';
+import {escapeAttribute} from '../src/meta.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { advise, answers } from '../src/advisor.mjs';
@@ -37,7 +39,7 @@ test('all 108 advice combinations safely round-trip',()=>{
   assert.equal(n,108);
 });
 test('every page has distinct metadata, social card and noindex',()=>{
-  assert.equal(routes.length,10);
+  assert.equal(routes.length,217);
   assert.equal(Object.keys(pageMeta).length,10);
   assert.equal(new Set(Object.values(pageMeta).map(x=>x.description)).size,10);
   for(const p of routes){
@@ -45,7 +47,7 @@ test('every page has distinct metadata, social card and noindex',()=>{
     assert.match(html,/<meta name="robots" content="noindex,nofollow"/);
     assert.match(html,/<meta property="og:title"/);
     assert.match(html,/<meta name="twitter:card"/);
-    assert.ok(html.includes(pageMeta[p].description));
+    assert.ok(html.includes(escapeAttribute((pageMeta[p] || getCatalogMeta(p)).description)));
   }
 });
 test('metadata escapes unsafe characters',()=>{
