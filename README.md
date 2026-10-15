@@ -1,1 +1,58 @@
-# havy5
+# HAVY5 — LAB website tư vấn vật liệu
+
+Website đa trang tiếng Việt cho Kho Ván Hà Vy (Quy Nhơn), thiết kế theo chiến lược “Chọn đúng vật liệu trước khi nói giá”. **Đây là bản LAB**, không phải website production. Không cần Gemini API key để dựng/chạy.
+
+## Chạy trên máy hoặc CI
+
+```bash
+npm run build
+npm test
+npm run lint
+npm run dev
+```
+
+Mở http://localhost:4173. Không cần npm install vì không có dependency bên ngoài; cần Node.js 20+.
+
+## Các trang đã triển khai
+
+- `/`: trang chủ chuyển đổi với thông điệp chọn đúng vật liệu.
+- `/chon-vat-lieu/`: khảo sát 4 câu hỏi, kết quả theo quy tắc, cảnh báo kỹ thuật.
+- `/vat-lieu/`: danh mục và bộ lọc MDF/Plywood/Cemboard.
+- `/vat-lieu/mdf/`, `/vat-lieu/plywood/`, `/vat-lieu/cemboard/`: trang công năng và giới hạn từng nhóm.
+- `/bao-gia/`: soạn nội dung hỏi giá trong trình duyệt, sao chép rồi mở Zalo Hà Vy để khách **tự bấm gửi**; không có backend/CRM và không tự thu thập PII. Cần xác minh số Zalo trước khi production.
+- `/ve-ha-vy/`: thông điệp và địa điểm Hà Vy.
+
+## Nguồn dữ liệu, điểm chưa xác minh
+
+- Tham chiếu công khai: https://havyqn.com/ (văn bản, đặc biệt cách trình bày nhu cầu).
+- Ba địa chỉ theo DNA Founder: 157 Nguyễn Thái Học; 200 Hoàng Văn Thụ; 28 Hùng Vương. Cần kiểm tra trước khi lên production.
+- Không sao chép tuyên bố 30+ năm/3.000+ công trình từ website cũ khi chưa có bằng chứng.
+- Không sử dụng địa chỉ cũ 52 Tăng Bạt Hổ.
+- Không hiển thị giá, tồn kho, lời chứng thực hay chứng nhận chưa kiểm định.
+- Thiết kế hình minh họa bằng CSS, không sử dụng hình ảnh đối thủ hoặc stock ảnh không rõ quyền.
+
+## Quy trình lên production
+
+Chạy KCS (lints, unit tests, responsive, keyboard, form integration, factual claims, legal/privacy), xác minh số liên hệ, cân nhắc liên kết CRM thật, đo analytics không gửi PII, thiết lập SEO và domain, sau đó mới Founder Gate. LAB đánh dấu noindex và robots disallow theo chủ đích.
+
+## Nâng cấp V4 — luồng tư vấn không mất ngữ cảnh
+
+- Handoff từ công cụ chọn ván sang yêu cầu báo giá: 4 lựa chọn cố định được giữ trong query string; không đặt PII trong URL, chỉ nhận giá trị whitelist.
+- Trang báo giá điền trước hạng mục, nhóm vật liệu và nội dung đã khảo sát để khách đỡ nhập lại; người dùng có thể sửa toàn bộ mô tả trước khi gửi.
+- Thêm `/chinh-sach-du-lieu/` để giải thích rõ thông tin trong trình duyệt, liên kết ngoài và giới hạn LAB.
+- SEO meta riêng cho 10 route, Open Graph và Twitter Card; LAB vẫn noindex/robots disallow tới Founder Gate.
+- Kiểm thử bảo mật dữ liệu đầu vào và 108 tổ hợp chuyển tiếp, chạy bằng `npm test`.
+
+**Không có Gemini key, CRM hoặc tính năng gửi tự động trong code. Không công bố giá/tồn kho/định mức chịu tải chưa có datasheet.**
+
+
+## Nâng cấp V5 — Đề xuất 14 section Founder
+
+- Trang chủ triển khai đủ 14 khu vực theo bản đề xuất ngày 14/10/2026; nguồn gốc văn bản lưu `docs/FOUNDER_14_SECTION_PROPOSAL_20261014.md`.
+- Hero tách 2 nhu cầu chuyển đổi; ba đường vào (chưa biết ván, đã có quy cách, đang dự toán).
+- Cẩm nang `/cam-nang/` giải thích chống ẩm, so quy cách, kết cấu và chuẩn bị thông tin mua hàng. Nội dung là kiến thức tổng hợp, không phải chứng thực giao dịch thật.
+- `/vat-lieu/#phu-melamine` phân biệt Melamine là lớp phủ.
+- Bổ sung tham số `muc-dich` từ CTA và nội dung soạn tin nhắn tương ứng (whitelist, không PII trong URL).
+- CSS riêng `src/home14.css`; giữ nguyên nguồn V4 ở các module tư vấn, kiểm thử chuyển tiếp 108 tổ hợp.
+- `noindex` giữ nguyên; chưa có máy tính định mức cắt tấm, ảnh kho gốc hay CRM gửi tự động.
+- Xem hồ sơ mapping và KCS ở `docs/FOUNDER_14_SECTION_IMPLEMENTATION_V5.md`, `docs/KCS_V5_14_SECTION_20261014.md`.
