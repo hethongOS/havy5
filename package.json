@@ -7,7 +7,7 @@
   "scripts": {
     "build": "node scripts/build.mjs",
     "test": "node --test tests/*.test.mjs",
-    "lint": "node --check src/site.mjs && node --check src/home14.mjs && node --check src/guide.mjs && node --check src/catalog.mjs && node --check src/catalog-client.js && node --check src/main.js && node --check src/advisor.mjs && node --check scripts/build.mjs",
+    "lint": "node --check src/site.mjs && node --check src/home14.mjs && node --check src/guide.mjs && node --check src/catalog.mjs && node --check src/catalog-client.js && node --check src/main.js && node --check src/advisor.mjs && node --check src/website-context.mjs && node --check scripts/build.mjs",
     "dev": "npm run build && node scripts/serve.mjs",
     "start": "node scripts/serve.mjs"
   },

@@ -6,3 +6,9 @@ coverage/
 !.env.example
 .gemini/
 gha-creds-*.json
+## Private course and BCM inputs (never commit to public GitHub)
+TEACHER_SMART_WEBSITE_B1_V2_ORIGINAL.txt
+HAVY5_SMART_HOME_TASK_20261015.md
+data/
+smart-v2-test-run.tmp
+docs/screenshots/havy5-smart-home-full-*.png
